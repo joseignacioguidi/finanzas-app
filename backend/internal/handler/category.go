@@ -1,27 +1,76 @@
 package handler
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/joseguidi/expense-tracker/backend/internal/service"
+)
 
 type CategoryHandler struct {
-	// TODO: agregar CategoryService
+	svc *service.CategoryService
 }
 
-func NewCategoryHandler() *CategoryHandler {
-	return &CategoryHandler{}
+func NewCategoryHandler(svc *service.CategoryService) *CategoryHandler {
+	return &CategoryHandler{svc: svc}
 }
 
 func (h *CategoryHandler) GetAll(c *gin.Context) {
-	// TODO: listar categorías del usuario autenticado
+	userID := c.MustGet("userID").(uuid.UUID)
+	cats, err := h.svc.GetAll(c.Request.Context(), userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, cats)
 }
 
 func (h *CategoryHandler) Create(c *gin.Context) {
-	// TODO: crear nueva categoría
+	userID := c.MustGet("userID").(uuid.UUID)
+	var input service.CategoryInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	cat, err := h.svc.Create(c.Request.Context(), userID, input)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusCreated, cat)
 }
 
 func (h *CategoryHandler) Update(c *gin.Context) {
-	// TODO: actualizar categoría por ID
+	userID := c.MustGet("userID").(uuid.UUID)
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id inválido"})
+		return
+	}
+	var input service.CategoryInput
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	cat, err := h.svc.Update(c.Request.Context(), userID, id, input)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, cat)
 }
 
 func (h *CategoryHandler) Delete(c *gin.Context) {
-	// TODO: eliminar categoría (verificar que no tenga transacciones)
+	userID := c.MustGet("userID").(uuid.UUID)
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "id inválido"})
+		return
+	}
+	if err := h.svc.Delete(c.Request.Context(), userID, id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.Status(http.StatusNoContent)
 }

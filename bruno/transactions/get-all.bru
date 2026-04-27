@@ -1,0 +1,21 @@
+meta {
+  name: Listar transacciones
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/transactions
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+params:query {
+  ~month: 2026-04
+  ~type: expense
+  ~category:
+}

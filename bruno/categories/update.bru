@@ -1,0 +1,22 @@
+meta {
+  name: Editar categoría
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/api/categories/{{categoryId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {
+    "name": "Comida y bebidas",
+    "color": "#E74C3C"
+  }
+}

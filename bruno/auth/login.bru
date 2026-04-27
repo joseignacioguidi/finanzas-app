@@ -1,0 +1,26 @@
+meta {
+  name: Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "test@test.com",
+    "password": "123456"
+  }
+}
+
+script:post-response {
+  const data = res.getBody();
+  if (data.token) {
+    bru.setVar("token", data.token);
+    console.log("Token guardado en variable de entorno");
+  }
+}

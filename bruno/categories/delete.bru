@@ -1,0 +1,15 @@
+meta {
+  name: Eliminar categoría
+  type: http
+  seq: 4
+}
+
+delete {
+  url: {{baseUrl}}/api/categories/{{categoryId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

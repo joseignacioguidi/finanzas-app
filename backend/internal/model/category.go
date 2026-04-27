@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Category struct {
@@ -13,4 +14,9 @@ type Category struct {
 	Color     string    `gorm:"size:7;not null"      json:"color"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func (c *Category) BeforeCreate(tx *gorm.DB) error {
+	c.ID = uuid.New()
+	return nil
 }

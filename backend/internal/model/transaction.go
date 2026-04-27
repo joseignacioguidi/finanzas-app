@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type TransactionType string
@@ -24,4 +25,9 @@ type Transaction struct {
 	Date        time.Time       `gorm:"not null"             json:"date"`
 	CreatedAt   time.Time       `json:"created_at"`
 	UpdatedAt   time.Time       `json:"updated_at"`
+}
+
+func (t *Transaction) BeforeCreate(tx *gorm.DB) error {
+	t.ID = uuid.New()
+	return nil
 }
