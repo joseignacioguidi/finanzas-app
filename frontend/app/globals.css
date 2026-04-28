@@ -6,61 +6,61 @@
   --font-body:    "DM Sans", sans-serif;
   --font-mono:    "JetBrains Mono", monospace;
 
-  /* ── Marca ── */
-  --color-brand:         #00C9A7;
-  --color-brand-hover:   #00B596;
-  --color-brand-dim:     #007D68;
-  --color-brand-bg:      #002922;
-  --color-brand-glow:    rgba(0, 201, 167, 0.15);
+  /* ── Marca — #1a1a2e como primario oscuro ── */
+  --color-brand:       #1a1a2e;
+  --color-brand-hover: #2a2a4a;
+  --color-brand-dim:   #0f0f1f;
+  --color-brand-bg:    #f0f0f8;
+  --color-brand-glow:  rgba(26, 26, 46, 0.08);
 
   /* ── Semánticos financieros ── */
-  --color-income:         #10D9A0;
-  --color-income-dim:     #0A9E74;
-  --color-income-bg:      #0A2E22;
-  --color-income-border:  #0F6648;
+  --color-income:        #16a34a;
+  --color-income-dim:    #15803d;
+  --color-income-bg:     #f0fdf4;
+  --color-income-border: #bbf7d0;
 
-  --color-expense:        #F0516A;
-  --color-expense-dim:    #B83C52;
-  --color-expense-bg:     #2E0F18;
-  --color-expense-border: #7A2535;
+  --color-expense:        #dc2626;
+  --color-expense-dim:    #b91c1c;
+  --color-expense-bg:     #fef2f2;
+  --color-expense-border: #fecaca;
 
-  --color-neutral:        #6B9FDB;
-  --color-neutral-bg:     #0F1E35;
+  --color-neutral:    #6b7280;
+  --color-neutral-bg: #f9fafb;
 
   /* ── Fondos ── */
-  --color-bg-base:        #0C0F14;
-  --color-bg-surface:     #141820;
-  --color-bg-elevated:    #1C2230;
-  --color-bg-overlay:     #252D3D;
-  --color-bg-muted:       #2E3748;
+  --color-bg-base:     #f7f7f2;
+  --color-bg-surface:  #ffffff;
+  --color-bg-elevated: #f7f7f2;
+  --color-bg-overlay:  #f0f0ea;
+  --color-bg-muted:    #e8e8e0;
 
   /* ── Texto ── */
-  --color-text-primary:   #F0F4FF;
-  --color-text-secondary: #8B95A8;
-  --color-text-muted:     #545E6F;
-  --color-text-inverse:   #0C0F14;
+  --color-text-primary:   #1a1a1a;
+  --color-text-secondary: #555555;
+  --color-text-muted:     #888888;
+  --color-text-inverse:   #ffffff;
 
   /* ── Bordes ── */
-  --color-border:         #252D3D;
-  --color-border-subtle:  #1C2230;
-  --color-border-strong:  #3A4558;
+  --color-border:        #e0e0d8;
+  --color-border-subtle: #e8e8e0;
+  --color-border-strong: #c0c0b8;
 
   /* ── Estados ── */
-  --color-warning:        #F5A623;
-  --color-warning-bg:     #2E1F06;
-  --color-error:          #F0516A;
-  --color-error-bg:       #2E0F18;
-  --color-success:        #10D9A0;
-  --color-success-bg:     #0A2E22;
-  --color-info:           #6B9FDB;
-  --color-info-bg:        #0F1E35;
+  --color-warning:    #ca8a04;
+  --color-warning-bg: #fef9c3;
+  --color-error:      #dc2626;
+  --color-error-bg:   #fef2f2;
+  --color-success:    #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-info:       #2563eb;
+  --color-info-bg:    #eff6ff;
 
   /* ── Sombras ── */
-  --shadow-brand:   0 0 20px rgba(0, 201, 167, 0.2);
-  --shadow-income:  0 0 16px rgba(16, 217, 160, 0.15);
-  --shadow-expense: 0 0 16px rgba(240, 81, 106, 0.15);
+  --shadow-brand:   0 2px 8px rgba(26, 26, 46, 0.2);
+  --shadow-income:  0 2px 8px rgba(22, 163, 74, 0.1);
+  --shadow-expense: 0 2px 8px rgba(220, 38, 38, 0.1);
 
-  /* ── Duración de animaciones ── */
+  /* ── Animaciones ── */
   --duration-fast:   100ms;
   --duration-base:   150ms;
   --duration-slow:   250ms;
@@ -84,23 +84,12 @@ body {
   min-height: 100vh;
 }
 
-/* ── Scrollbar personalizado ── */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: var(--color-bg-base);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-bg-muted);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-border-strong);
-}
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--color-bg-base); }
+::-webkit-scrollbar-thumb { background: var(--color-bg-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-border-strong); }
 
-/* ── Selección de texto ── */
 ::selection {
   background: var(--color-brand-bg);
   color: var(--color-brand);

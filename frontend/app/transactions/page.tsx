@@ -1,28 +1,39 @@
 'use client'
 
-import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import AppShell from '@/components/layout/AppShell'
 import TransactionList from '@/components/transactions/TransactionList'
-import Button from '@/components/ui/Button'
 
 export default function TransactionsPage() {
+  const headerRight = (
+    <>
+      <span
+        className="text-[11px] text-[var(--color-text-muted)] px-2.5 py-1 rounded-[6px]"
+        style={{ background: '#f7f7f2', border: '0.5px solid #e0e0d8' }}
+      >
+        {new Date().toLocaleString('es', { month: 'long', year: 'numeric' })
+          .replace(/^\w/, c => c.toUpperCase())}
+      </span>
+      <Link
+        href="/transactions/new"
+        className="h-[30px] px-3.5 rounded-[7px] text-[11px] font-medium text-white flex items-center"
+        style={{ background: '#1a1a2e' }}
+      >
+        + Nueva transacción
+      </Link>
+    </>
+  )
+
   return (
-    <AppShell>
-      <div className="max-w-6xl mx-auto flex flex-col gap-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-[var(--color-text-primary)]" style={{ fontFamily: 'var(--font-display)' }}>
-            Transacciones
-          </h1>
-          <Link href="/transactions/new">
-            <Button size="sm">
-              <Plus size={14} strokeWidth={2} />
-              Nueva
-            </Button>
-          </Link>
-        </div>
-        <TransactionList />
-      </div>
+    <AppShell title="Transacciones" headerRight={headerRight}>
+      {/* Título mobile */}
+      <h1
+        className="md:hidden text-[18px] font-medium text-[var(--color-text-primary)] mb-4"
+        style={{ fontFamily: 'var(--font-display)' }}
+      >
+        Movimientos
+      </h1>
+      <TransactionList />
     </AppShell>
   )
 }

@@ -14,13 +14,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantClasses: Record<Variant, string> = {
   primary:
-    'bg-[var(--color-brand)] text-[var(--color-text-inverse)] font-semibold hover:bg-[var(--color-brand-hover)] shadow-[var(--shadow-brand)] hover:shadow-[0_0_24px_rgba(0,201,167,0.35)]',
+    'bg-[var(--color-brand)] text-white font-semibold hover:bg-[var(--color-brand-hover)] shadow-[var(--shadow-brand)]',
   secondary:
     'bg-[var(--color-bg-elevated)] text-[var(--color-text-primary)] border border-[var(--color-border)] hover:bg-[var(--color-bg-overlay)] hover:border-[var(--color-border-strong)]',
   ghost:
     'text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-overlay)] hover:text-[var(--color-text-primary)]',
   danger:
-    'bg-[var(--color-expense-bg)] text-[var(--color-expense)] border border-[var(--color-expense-border)] hover:brightness-110',
+    'bg-[var(--color-expense-bg)] text-[var(--color-expense)] border border-[var(--color-expense-border)] hover:brightness-95',
 }
 
 const sizeClasses: Record<Size, string> = {
@@ -43,7 +43,7 @@ export default function Button({
       disabled={disabled || loading}
       className={[
         'inline-flex items-center justify-center font-medium transition-all duration-150',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)]',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-brand)] focus-visible:ring-offset-2',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         variantClasses[variant],
         sizeClasses[size],

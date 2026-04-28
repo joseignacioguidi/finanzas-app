@@ -41,22 +41,22 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg-base)] px-4">
-      {/* Fondo decorativo */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[var(--color-brand)] opacity-[0.04] blur-[120px]" />
-      </div>
-
       <div className="relative w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
+          <div
+            className="w-10 h-10 rounded-[10px] flex items-center justify-center text-white text-lg font-bold mx-auto mb-3"
+            style={{ background: '#1a1a2e' }}
+          >
+            F
+          </div>
           <h1
-            className="text-3xl font-bold text-[var(--color-text-primary)]"
+            className="text-2xl font-bold text-[var(--color-text-primary)]"
             style={{ fontFamily: 'var(--font-display)' }}
           >
-            finanzas
-            <span style={{ color: 'var(--color-brand)' }}>.</span>
+            Finanzas
           </h1>
-          <p className="mt-2 text-sm text-[var(--color-text-muted)]">
+          <p className="mt-1.5 text-sm text-[var(--color-text-muted)]">
             Tu control de gastos personales
           </p>
         </div>
@@ -101,7 +101,7 @@ export default function LoginPage() {
 
           <p className="mt-5 text-center text-sm text-[var(--color-text-muted)]">
             ¿No tenés cuenta?{' '}
-            <Link href="/register" className="text-[var(--color-brand)] hover:underline font-medium">
+            <Link href="/register" className="font-medium hover:underline" style={{ color: 'var(--color-brand)' }}>
               Registrate
             </Link>
           </p>

@@ -8,7 +8,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from 'recharts'
 import type { MonthlyStatRow } from '@/lib/types'
 
@@ -29,8 +28,8 @@ function formatAmount(value: number) {
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-4 py-3 shadow-[var(--shadow-lg)] text-sm">
-      <p className="mb-2 font-medium text-[var(--color-text-secondary)] uppercase tracking-wider text-xs">{label}</p>
+    <div className="rounded-lg border border-[var(--color-border)] bg-white px-4 py-3 shadow-sm text-sm">
+      <p className="mb-2 font-medium text-[var(--color-text-muted)] uppercase tracking-wider text-xs">{label}</p>
       {payload.map((entry: any) => (
         <div key={entry.dataKey} className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full" style={{ backgroundColor: entry.fill }} />
@@ -51,34 +50,25 @@ export default function MonthlyBar({ data }: MonthlyBarProps) {
   }))
 
   return (
-    <ResponsiveContainer width="100%" height={240}>
-      <BarChart data={formatted} barGap={4} barCategoryGap="30%">
-        <CartesianGrid
-          strokeDasharray="3 3"
-          stroke="var(--color-border)"
-          vertical={false}
-        />
+    <ResponsiveContainer width="100%" height={200}>
+      <BarChart data={formatted} barGap={4} barCategoryGap="35%">
+        <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e0" vertical={false} />
         <XAxis
           dataKey="mes"
-          tick={{ fill: 'var(--color-text-muted)', fontSize: 12 }}
+          tick={{ fill: '#888', fontSize: 11 }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
           tickFormatter={formatAmount}
-          tick={{ fill: 'var(--color-text-muted)', fontSize: 12 }}
+          tick={{ fill: '#888', fontSize: 11 }}
           axisLine={false}
           tickLine={false}
-          width={48}
+          width={44}
         />
-        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--color-bg-overlay)' }} />
-        <Legend
-          formatter={(value) => (
-            <span style={{ color: 'var(--color-text-secondary)', fontSize: 12 }}>{value}</span>
-          )}
-        />
-        <Bar dataKey="income" name="Ingresos" fill="var(--color-income)" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="expense" name="Gastos" fill="var(--color-expense)" radius={[4, 4, 0, 0]} />
+        <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f0f0ea' }} />
+        <Bar dataKey="income" name="Ingresos" fill="#4ade80" radius={[3, 3, 0, 0]} />
+        <Bar dataKey="expense" name="Gastos" fill="#f87171" radius={[3, 3, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )

@@ -74,15 +74,21 @@ Patrón de capas: `handler → service → repository`. El handler maneja HTTP, 
 frontend/
 ├── app/
 │   ├── dashboard/
-│   │   └── page.tsx
+│   │   └── page.tsx       ← stat cards + gráfico + acciones rápidas
 │   ├── transactions/
-│   │   ├── page.tsx
-│   │   └── new/page.tsx
+│   │   ├── page.tsx       ← listado con filter pills + tabla
+│   │   └── new/page.tsx   ← formulario 2 cols (form + preview en vivo)
+│   ├── profile/
+│   │   └── page.tsx       ← perfil, stats y ajustes (nueva pantalla)
 │   ├── categories/
 │   │   └── page.tsx
 │   ├── layout.tsx
 │   └── page.tsx           ← login
 ├── components/
+│   ├── layout/
+│   │   ├── AppShell.tsx   ← shell con topbar + sidebar + bottom nav
+│   │   ├── Sidebar.tsx    ← sidebar oscura 200px (desktop)
+│   │   └── BottomNav.tsx  ← tabs de navegación (mobile)
 │   ├── transactions/
 │   │   ├── TransactionForm.tsx
 │   │   └── TransactionList.tsx
@@ -139,8 +145,14 @@ frontend/
 
 **Dashboard**
 - Resumen del mes: total ingresos, total egresos y balance (separado por moneda)
-- Gráfico de barras: comparativa de gastos de los últimos 6 meses
-- Gráfico de torta: distribución de egresos del mes por categoría
+- Gráfico de barras: comparativa ingresos vs gastos de los últimos 6 meses
+- Panel lateral: últimos movimientos + acciones rápidas
+- En mobile: header oscuro con saldo destacado, barras por categoría y grilla de acciones
+
+**Perfil**
+- Avatar con iniciales, estadísticas (cantidad de transacciones y meses activo)
+- Ajustes: moneda, notificaciones (toggle), tema oscuro (toggle), inicio del mes
+- Sección cuenta: cambiar contraseña, exportar datos, eliminar cuenta
 
 ### V2 (segunda iteración)
 - Exportar transacciones a CSV
@@ -150,6 +162,37 @@ frontend/
 ### V3 (futuro)
 - Carga por foto de ticket con OCR via Claude API
 - Categorización automática basada en historial del usuario
+
+---
+
+## Diseño visual
+
+**Paleta base** (aplicada en `frontend/app/globals.css`):
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--color-brand` | `#1a1a2e` | Primario — sidebar, CTAs, pills activos |
+| `--color-bg-base` | `#f7f7f2` | Fondo general (crema) |
+| `--color-bg-surface` | `#ffffff` | Cards y paneles |
+| `--color-income` | `#16a34a` | Montos de ingreso |
+| `--color-expense` | `#dc2626` | Montos de egreso |
+
+**Colores de categorías** (referencia para crear categorías por defecto):
+
+| Categoría | Color |
+|---|---|
+| Comida / Alimentación | `#f87171` |
+| Transporte | `#fb923c` |
+| Servicios | `#60a5fa` |
+| Salud | `#34d399` |
+| Ocio | `#a78bfa` |
+
+**Layout**:
+- Desktop: sidebar fija `200px` oscura + topbar `50px` + contenido en `#f7f7f2`
+- Mobile: sin sidebar, bottom nav con 3 tabs (Inicio / Movim. / Perfil)
+- Breakpoint: `md` (768px)
+
+Los wireframes de referencia están en `docs/wireframes/`.
 
 ---
 

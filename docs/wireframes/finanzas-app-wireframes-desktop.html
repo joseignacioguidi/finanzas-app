@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Finanzas App — Wireframes Desktop</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f5f5f0;
+    padding: 40px 32px;
+    color: #1a1a1a;
+  }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 6px; }
+  .meta { font-size: 13px; color: #888; margin-bottom: 40px; }
+  .screen-block { margin-bottom: 48px; }
+  .screen-label {
+    font-size: 11px; font-weight: 600; color: #888;
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;
+  }
+  .browser-frame {
+    border: 1.5px solid #ccc; border-radius: 12px; overflow: hidden;
+    background: #fff; max-width: 1100px;
+  }
+  .browser-bar {
+    height: 36px; background: #f0f0ea; border-bottom: 0.5px solid #ddd;
+    display: flex; align-items: center; gap: 8px; padding: 0 14px;
+  }
+  .browser-dots { display: flex; gap: 5px; }
+  .browser-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .browser-url {
+    flex: 1; height: 20px; background: #fff; border: 0.5px solid #ddd;
+    border-radius: 5px; display: flex; align-items: center; padding: 0 10px;
+    font-size: 11px; color: #aaa; margin: 0 10px; max-width: 400px;
+  }
+  .app-shell { display: flex; height: 520px; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 200px; min-width: 200px; background: #1a1a2e;
+    display: flex; flex-direction: column; padding: 20px 0;
+  }
+  .sidebar-logo { padding: 0 18px 18px; border-bottom: 0.5px solid rgba(255,255,255,0.08); margin-bottom: 14px; }
+  .sidebar-logo-name { font-size: 15px; font-weight: 500; color: #fff; }
+  .sidebar-logo-sub { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+  .sidebar-section { padding: 0 10px; margin-bottom: 18px; }
+  .sidebar-section-label {
+    font-size: 9px; color: rgba(255,255,255,0.3); text-transform: uppercase;
+    letter-spacing: 0.08em; padding: 0 8px; margin-bottom: 5px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 8px 8px;
+    border-radius: 7px; margin-bottom: 1px; cursor: pointer;
+  }
+  .nav-item.active { background: rgba(255,255,255,0.1); }
+  .nav-icon { width: 18px; height: 18px; border-radius: 5px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .nav-icon-inner { width: 8px; height: 8px; border-radius: 2px; }
+  .nav-text { font-size: 12px; color: rgba(255,255,255,0.6); }
+  .nav-item.active .nav-text { color: #fff; }
+  .sidebar-user {
+    margin-top: auto; padding: 14px 18px;
+    border-top: 0.5px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .sidebar-avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); display: flex; align-items: center;
+    justify-content: center; font-size: 10px; color: #fff; font-weight: 500; flex-shrink: 0;
+  }
+  .sidebar-user-name { font-size: 11px; color: rgba(255,255,255,0.8); }
+  .sidebar-user-email { font-size: 9px; color: rgba(255,255,255,0.35); }
+
+  /* MAIN */
+  .main-content { flex: 1; overflow: hidden; display: flex; flex-direction: column; background: #f7f7f2; }
+  .topbar {
+    height: 50px; background: #fff; border-bottom: 0.5px solid #e8e8e0;
+    display: flex; align-items: center; justify-content: space-between; padding: 0 24px; flex-shrink: 0;
+  }
+  .topbar-title { font-size: 15px; font-weight: 500; color: #1a1a1a; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .topbar-period {
+    font-size: 11px; color: #888; background: #f7f7f2;
+    border: 0.5px solid #e0e0d8; border-radius: 6px; padding: 4px 10px;
+  }
+  .topbar-btn {
+    height: 30px; background: #1a1a2e; border-radius: 7px;
+    display: flex; align-items: center; padding: 0 14px;
+  }
+  .topbar-btn-text { font-size: 11px; color: #fff; font-weight: 500; }
+  .topbar-link { font-size: 11px; color: #aaa; }
+
+  .content-area { flex: 1; overflow: hidden; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+  /* STAT CARDS */
+  .stat-row { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; flex-shrink: 0; }
+  .stat-card {
+    background: #fff; border: 0.5px solid #e8e8e0; border-radius: 10px; padding: 14px 16px;
+  }
+  .stat-label { font-size: 11px; color: #888; margin-bottom: 5px; }
+  .stat-val { font-size: 20px; font-weight: 500; color: #1a1a1a; line-height: 1.1; }
+  .stat-sub { font-size: 10px; color: #aaa; margin-top: 4px; }
+  .stat-sub.up { color: #16a34a; }
+  .stat-sub.down { color: #dc2626; }
+
+  /* MAIN GRID */
+  .main-grid { display: grid; grid-template-columns: 1fr 280px; gap: 14px; flex: 1; min-height: 0; }
+  .panel {
+    background: #fff; border: 0.5px solid #e8e8e0; border-radius: 10px; padding: 16px; display: flex; flex-direction: column;
+  }
+  .panel-title { font-size: 12px; font-weight: 500; color: #1a1a1a; margin-bottom: 12px; }
+  .bar-chart { flex: 1; display: flex; align-items: flex-end; gap: 10px; border-bottom: 0.5px solid #e8e8e0; padding-bottom: 8px; }
+  .bar-col { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; }
+  .bar-pair { display: flex; gap: 3px; align-items: flex-end; width: 100%; }
+  .bar { border-radius: 3px 3px 0 0; width: 50%; }
+  .bar-month { font-size: 9px; color: #aaa; }
+  .chart-legend { display: flex; gap: 14px; margin-top: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: #888; }
+  .legend-dot { width: 9px; height: 9px; border-radius: 2px; }
+
+  .side-panel { display: flex; flex-direction: column; gap: 12px; }
+  .tx-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 0.5px solid #e8e8e0; }
+  .tx-row:last-child { border-bottom: none; }
+  .tx-icon-sm { width: 26px; height: 26px; border-radius: 7px; background: #f7f7f2; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .tx-dot-sm { width: 9px; height: 9px; border-radius: 2px; }
+  .tx-info { flex: 1; }
+  .tx-name { font-size: 11px; font-weight: 500; color: #1a1a1a; }
+  .tx-cat { font-size: 9px; color: #aaa; }
+  .tx-amt { font-size: 11px; font-weight: 500; }
+  .tx-amt.neg { color: #dc2626; }
+  .tx-amt.pos { color: #16a34a; }
+  .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 10px; }
+  .qa-btn {
+    background: #f7f7f2; border: 0.5px solid #e0e0d8; border-radius: 8px;
+    padding: 9px 10px; display: flex; align-items: center; gap: 7px;
+  }
+  .qa-icon { width: 20px; height: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .qa-icon-inner { width: 9px; height: 9px; border-radius: 2px; }
+  .qa-label { font-size: 11px; color: #1a1a1a; }
+
+  /* TRANSACTIONS TABLE */
+  .filter-bar { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .search-box {
+    flex: 1; height: 32px; background: #fff; border: 0.5px solid #e0e0d8;
+    border-radius: 8px; display: flex; align-items: center; padding: 0 12px; gap: 8px;
+  }
+  .search-icon { width: 11px; height: 11px; border: 1.5px solid #bbb; border-radius: 50%; }
+  .search-text { font-size: 11px; color: #bbb; }
+  .filter-pill {
+    font-size: 10px; padding: 4px 12px; border-radius: 10px;
+    border: 0.5px solid #d0d0cc; color: #888; background: #fff;
+    white-space: nowrap;
+  }
+  .filter-pill.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  .tx-table { flex: 1; background: #fff; border: 0.5px solid #e8e8e0; border-radius: 10px; overflow: hidden; }
+  .tx-table-head {
+    display: grid; grid-template-columns: 2fr 1.2fr 1fr 1fr 90px;
+    border-bottom: 0.5px solid #e8e8e0; padding: 9px 16px; background: #fafaf7;
+  }
+  .th { font-size: 10px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; }
+  .tx-table-row {
+    display: grid; grid-template-columns: 2fr 1.2fr 1fr 1fr 90px;
+    padding: 9px 16px; border-bottom: 0.5px solid #e8e8e0; align-items: center;
+  }
+  .tx-table-row:last-child { border-bottom: none; }
+  .tx-cell { font-size: 11px; color: #1a1a1a; display: flex; align-items: center; gap: 7px; }
+  .tx-cell.muted { color: #aaa; }
+  .tx-cell.neg { color: #dc2626; font-weight: 500; justify-content: flex-end; }
+  .tx-cell.pos { color: #16a34a; font-weight: 500; justify-content: flex-end; }
+  .cat-badge { font-size: 9px; padding: 2px 8px; border-radius: 10px; }
+  .tx-icon-row { width: 22px; height: 22px; border-radius: 6px; background: #f7f7f2; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .tx-dot-row { width: 9px; height: 9px; border-radius: 2px; }
+
+  /* ADD TRANSACTION FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; flex: 1; }
+  .form-panel { background: #fff; border: 0.5px solid #e8e8e0; border-radius: 10px; padding: 22px; display: flex; flex-direction: column; }
+  .type-toggle { display: flex; background: #f7f7f2; border-radius: 9px; padding: 2px; margin-bottom: 18px; }
+  .type-btn { flex: 1; font-size: 11px; text-align: center; padding: 6px; border-radius: 7px; }
+  .type-btn.active { background: #fff; border: 0.5px solid #e0e0d8; font-weight: 500; color: #1a1a1a; }
+  .type-btn.inactive { color: #aaa; }
+  .form-field { margin-bottom: 16px; }
+  .field-label { font-size: 10px; font-weight: 600; color: #aaa; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .field-input {
+    width: 100%; height: 36px; background: #f7f7f2; border: 0.5px solid #e0e0d8;
+    border-radius: 8px; display: flex; align-items: center; padding: 0 12px;
+    font-size: 12px; color: #aaa;
+  }
+  .field-input.filled { color: #1a1a1a; }
+  .amount-field {
+    background: #f7f7f2; border: 0.5px solid #e0e0d8; border-radius: 8px;
+    display: flex; align-items: center; padding: 0 12px; height: 50px;
+  }
+  .amount-cur { font-size: 18px; color: #aaa; margin-right: 4px; }
+  .amount-val { font-size: 26px; font-weight: 500; color: #1a1a1a; }
+  .cat-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+  .cat-pill { font-size: 10px; padding: 4px 10px; border-radius: 10px; border: 0.5px solid #d0d0cc; color: #888; }
+  .cat-pill.sel { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+  .preview-panel { background: #fff; border: 0.5px solid #e8e8e0; border-radius: 10px; padding: 22px; display: flex; flex-direction: column; }
+  .preview-card { background: #f7f7f2; border-radius: 9px; padding: 16px; margin-bottom: 14px; }
+  .preview-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .preview-row:last-child { margin-bottom: 0; }
+  .preview-key { font-size: 11px; color: #aaa; }
+  .preview-val { font-size: 12px; font-weight: 500; color: #1a1a1a; }
+  .preview-note { font-size: 10px; color: #aaa; margin-bottom: 16px; line-height: 1.5; }
+  .submit-btn { height: 40px; background: #1a1a2e; border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-top: auto; }
+  .submit-btn-text { font-size: 12px; font-weight: 500; color: #fff; }
+  .submit-hint { text-align: center; margin-top: 8px; font-size: 10px; color: #aaa; }
+
+  /* PROFILE */
+  .profile-grid { display: grid; grid-template-columns: 240px 1fr; gap: 16px; flex: 1; min-height: 0; }
+  .profile-card { background: #fff; border: 0.5px solid #e8e8e0; border-radius: 10px; padding: 22px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .profile-avatar { width: 56px; height: 56px; border-radius: 50%; background: #1a1a2e; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 500; color: #fff; }
+  .profile-name { font-size: 15px; font-weight: 500; color: #1a1a1a; }
+  .profile-email { font-size: 11px; color: #aaa; }
+  .profile-divider { width: 100%; height: 0.5px; background: #e8e8e0; margin: 4px 0; }
+  .profile-stat-row { display: flex; gap: 8px; width: 100%; }
+  .profile-stat { flex: 1; background: #f7f7f2; border-radius: 7px; padding: 10px; text-align: center; }
+  .profile-stat-val { font-size: 18px; font-weight: 500; color: #1a1a1a; }
+  .profile-stat-label { font-size: 9px; color: #aaa; margin-top: 2px; }
+  .profile-since { font-size: 10px; color: #aaa; text-align: center; }
+  .logout-btn {
+    width: 100%; height: 32px; border: 0.5px solid #dc2626; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; margin-top: auto;
+  }
+  .logout-text { font-size: 11px; color: #dc2626; }
+  .settings-panels { display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+  .settings-card { background: #fff; border: 0.5px solid #e8e8e0; border-radius: 10px; padding: 16px 18px; }
+  .settings-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 0.5px solid #e8e8e0; gap: 12px; }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-icon { width: 26px; height: 26px; border-radius: 7px; background: #f7f7f2; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .settings-icon-inner { width: 10px; height: 10px; border-radius: 3px; }
+  .settings-label { flex: 1; font-size: 12px; color: #1a1a1a; }
+  .settings-val { font-size: 11px; color: #aaa; }
+  .toggle { width: 30px; height: 16px; border-radius: 8px; position: relative; }
+  .toggle.on { background: #16a34a; }
+  .toggle.off { background: #d0d0cc; }
+  .toggle-knob { position: absolute; top: 3px; width: 10px; height: 10px; border-radius: 50%; background: #fff; }
+  .toggle.on .toggle-knob { right: 3px; }
+  .toggle.off .toggle-knob { left: 3px; }
+  .chevron { font-size: 13px; color: #ccc; }
+
+  /* ANNOTATIONS */
+  .annotations { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .ann { display: flex; align-items: flex-start; gap: 5px; }
+  .ann-dot { width: 4px; height: 4px; border-radius: 50%; background: #c0c0b8; flex-shrink: 0; margin-top: 5px; }
+  .ann span { font-size: 11px; color: #666; line-height: 1.4; }
+
+  .footer { text-align: center; margin-top: 48px; font-size: 11px; color: #aaa; }
+</style>
+</head>
+<body>
+
+<h1>Finanzas App — Wireframes Desktop</h1>
+<p class="meta">MVP · 4 pantallas principales · Resolución de referencia: 1280×800px mínimo — sidebar fija de 200px</p>
+
+<!-- SCREEN 1: DASHBOARD -->
+<div class="screen-block">
+  <div class="screen-label">1 · Dashboard</div>
+  <div class="browser-frame">
+    <div class="browser-bar">
+      <div class="browser-dots">
+        <div class="browser-dot" style="background:#f87171;"></div>
+        <div class="browser-dot" style="background:#fbbf24;"></div>
+        <div class="browser-dot" style="background:#4ade80;"></div>
+      </div>
+      <div class="browser-url">app.finanzas.io/dashboard</div>
+    </div>
+    <div class="app-shell">
+      <div class="sidebar">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-name">Finanzas</div>
+          <div class="sidebar-logo-sub">Gestión personal</div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Principal</div>
+          <div class="nav-item active">
+            <div class="nav-icon" style="background:rgba(255,255,255,0.15);"><div class="nav-icon-inner" style="background:#fff;"></div></div>
+            <div class="nav-text">Dashboard</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div>
+            <div class="nav-text">Transacciones</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div>
+            <div class="nav-text">Reportes</div>
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Cuenta</div>
+          <div class="nav-item">
+            <div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div>
+            <div class="nav-text">Perfil</div>
+          </div>
+          <div class="nav-item">
+            <div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div>
+            <div class="nav-text">Configuración</div>
+          </div>
+        </div>
+        <div class="sidebar-user">
+          <div class="sidebar-avatar">MG</div>
+          <div>
+            <div class="sidebar-user-name">María G.</div>
+            <div class="sidebar-user-email">maria@email.com</div>
+          </div>
+        </div>
+      </div>
+      <div class="main-content">
+        <div class="topbar">
+          <div class="topbar-title">Buenos días, María</div>
+          <div class="topbar-right">
+            <div class="topbar-period">Abril 2026</div>
+            <div class="topbar-btn"><div class="topbar-btn-text">+ Nueva transacción</div></div>
+          </div>
+        </div>
+        <div class="content-area">
+          <div class="stat-row">
+            <div class="stat-card">
+              <div class="stat-label">Saldo disponible</div>
+              <div class="stat-val">$84,250</div>
+              <div class="stat-sub up">+8.2% vs mes anterior</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Ingresos del mes</div>
+              <div class="stat-val">$12,400</div>
+              <div class="stat-sub up">+$1,200 vs marzo</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Gastos del mes</div>
+              <div class="stat-val">$4,820</div>
+              <div class="stat-sub down">+$340 vs marzo</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Balance neto</div>
+              <div class="stat-val">$7,580</div>
+              <div class="stat-sub up">Superávit del mes</div>
+            </div>
+          </div>
+          <div class="main-grid">
+            <div class="panel">
+              <div class="panel-title">Ingresos vs gastos — últimos 6 meses</div>
+              <div class="bar-chart">
+                <div class="bar-col"><div class="bar-pair"><div class="bar" style="height:65px;background:#4ade80;"></div><div class="bar" style="height:32px;background:#f87171;"></div></div><div class="bar-month">Nov</div></div>
+                <div class="bar-col"><div class="bar-pair"><div class="bar" style="height:58px;background:#4ade80;"></div><div class="bar" style="height:38px;background:#f87171;"></div></div><div class="bar-month">Dic</div></div>
+                <div class="bar-col"><div class="bar-pair"><div class="bar" style="height:75px;background:#4ade80;"></div><div class="bar" style="height:30px;background:#f87171;"></div></div><div class="bar-month">Ene</div></div>
+                <div class="bar-col"><div class="bar-pair"><div class="bar" style="height:68px;background:#4ade80;"></div><div class="bar" style="height:40px;background:#f87171;"></div></div><div class="bar-month">Feb</div></div>
+                <div class="bar-col"><div class="bar-pair"><div class="bar" style="height:75px;background:#4ade80;"></div><div class="bar" style="height:35px;background:#f87171;"></div></div><div class="bar-month">Mar</div></div>
+                <div class="bar-col"><div class="bar-pair"><div class="bar" style="height:85px;background:#4ade80;"></div><div class="bar" style="height:38px;background:#f87171;opacity:0.5;"></div></div><div class="bar-month" style="font-weight:600;color:#1a1a1a;">Abr</div></div>
+              </div>
+              <div class="chart-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#4ade80;"></div>Ingresos</div>
+                <div class="legend-item"><div class="legend-dot" style="background:#f87171;"></div>Gastos</div>
+              </div>
+            </div>
+            <div class="side-panel">
+              <div class="panel">
+                <div class="panel-title">Últimos movimientos</div>
+                <div class="tx-row"><div class="tx-icon-sm"><div class="tx-dot-sm" style="background:#f87171;"></div></div><div class="tx-info"><div class="tx-name">Supermercado</div><div class="tx-cat">Comida · Hoy</div></div><div class="tx-amt neg">−$1,240</div></div>
+                <div class="tx-row"><div class="tx-icon-sm"><div class="tx-dot-sm" style="background:#4ade80;"></div></div><div class="tx-info"><div class="tx-name">Sueldo</div><div class="tx-cat">Ingreso · Hoy</div></div><div class="tx-amt pos">+$12,400</div></div>
+                <div class="tx-row"><div class="tx-icon-sm"><div class="tx-dot-sm" style="background:#fb923c;"></div></div><div class="tx-info"><div class="tx-name">SUBE</div><div class="tx-cat">Transporte · Ayer</div></div><div class="tx-amt neg">−$280</div></div>
+                <div class="tx-row"><div class="tx-icon-sm"><div class="tx-dot-sm" style="background:#60a5fa;"></div></div><div class="tx-info"><div class="tx-name">Netflix</div><div class="tx-cat">Servicios · Ayer</div></div><div class="tx-amt neg">−$1,850</div></div>
+              </div>
+              <div class="panel">
+                <div class="panel-title">Acciones rápidas</div>
+                <div class="qa-grid">
+                  <div class="qa-btn"><div class="qa-icon" style="background:#e0f2fe;"><div class="qa-icon-inner" style="background:#0284c7;"></div></div><div class="qa-label">Agregar gasto</div></div>
+                  <div class="qa-btn"><div class="qa-icon" style="background:#dcfce7;"><div class="qa-icon-inner" style="background:#16a34a;"></div></div><div class="qa-label">Agregar ingreso</div></div>
+                  <div class="qa-btn"><div class="qa-icon" style="background:#fef9c3;"><div class="qa-icon-inner" style="background:#ca8a04;"></div></div><div class="qa-label">Exportar</div></div>
+                  <div class="qa-btn"><div class="qa-icon" style="background:#f3e8ff;"><div class="qa-icon-inner" style="background:#9333ea;"></div></div><div class="qa-label">Reportes</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann"><div class="ann-dot"></div><span>Sidebar fija oscura de 200px con nav agrupada por sección</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>4 stat cards en fila con delta vs mes anterior</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>Gráfico de barras dobles (6 meses) como elemento principal</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>Panel lateral: movimientos recientes + acciones rápidas</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>CTA "nueva transacción" siempre visible en topbar</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 2: TRANSACTIONS -->
+<div class="screen-block">
+  <div class="screen-label">2 · Transacciones</div>
+  <div class="browser-frame">
+    <div class="browser-bar">
+      <div class="browser-dots">
+        <div class="browser-dot" style="background:#f87171;"></div>
+        <div class="browser-dot" style="background:#fbbf24;"></div>
+        <div class="browser-dot" style="background:#4ade80;"></div>
+      </div>
+      <div class="browser-url">app.finanzas.io/transacciones</div>
+    </div>
+    <div class="app-shell">
+      <div class="sidebar">
+        <div class="sidebar-logo"><div class="sidebar-logo-name">Finanzas</div><div class="sidebar-logo-sub">Gestión personal</div></div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Principal</div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Dashboard</div></div>
+          <div class="nav-item active"><div class="nav-icon" style="background:rgba(255,255,255,0.15);"><div class="nav-icon-inner" style="background:#fff;"></div></div><div class="nav-text">Transacciones</div></div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Reportes</div></div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Cuenta</div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Perfil</div></div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Configuración</div></div>
+        </div>
+        <div class="sidebar-user"><div class="sidebar-avatar">MG</div><div><div class="sidebar-user-name">María G.</div><div class="sidebar-user-email">maria@email.com</div></div></div>
+      </div>
+      <div class="main-content">
+        <div class="topbar">
+          <div class="topbar-title">Transacciones</div>
+          <div class="topbar-right">
+            <div class="topbar-period">Abril 2026</div>
+            <div class="topbar-btn"><div class="topbar-btn-text">+ Nueva transacción</div></div>
+          </div>
+        </div>
+        <div class="content-area">
+          <div class="filter-bar">
+            <div class="search-box"><div class="search-icon"></div><span class="search-text">Buscar por descripción, categoría...</span></div>
+            <div class="filter-pill active">Todos</div>
+            <div class="filter-pill">Ingresos</div>
+            <div class="filter-pill">Gastos</div>
+            <div class="filter-pill">Comida</div>
+            <div class="filter-pill">Transporte</div>
+            <div class="filter-pill">Servicios</div>
+          </div>
+          <div class="tx-table">
+            <div class="tx-table-head">
+              <div class="th">Descripción</div>
+              <div class="th">Categoría</div>
+              <div class="th">Fecha</div>
+              <div class="th">Tipo</div>
+              <div class="th" style="text-align:right;">Monto</div>
+            </div>
+            <div class="tx-table-row">
+              <div class="tx-cell"><div class="tx-icon-row"><div class="tx-dot-row" style="background:#f87171;"></div></div>Supermercado Norte</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#fef2f2;color:#991b1b;">Comida</span></div>
+              <div class="tx-cell muted">28 abr 2026</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#fef2f2;color:#991b1b;">Egreso</span></div>
+              <div class="tx-cell neg">−$1,240</div>
+            </div>
+            <div class="tx-table-row">
+              <div class="tx-cell"><div class="tx-icon-row"><div class="tx-dot-row" style="background:#4ade80;"></div></div>Sueldo abril</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#f0fdf4;color:#166534;">Ingresos</span></div>
+              <div class="tx-cell muted">28 abr 2026</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#f0fdf4;color:#166534;">Ingreso</span></div>
+              <div class="tx-cell pos">+$12,400</div>
+            </div>
+            <div class="tx-table-row">
+              <div class="tx-cell"><div class="tx-icon-row"><div class="tx-dot-row" style="background:#fb923c;"></div></div>Carga SUBE</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#fff7ed;color:#9a3412;">Transporte</span></div>
+              <div class="tx-cell muted">27 abr 2026</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#fef2f2;color:#991b1b;">Egreso</span></div>
+              <div class="tx-cell neg">−$280</div>
+            </div>
+            <div class="tx-table-row">
+              <div class="tx-cell"><div class="tx-icon-row"><div class="tx-dot-row" style="background:#60a5fa;"></div></div>Netflix</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#eff6ff;color:#1e40af;">Servicios</span></div>
+              <div class="tx-cell muted">27 abr 2026</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#fef2f2;color:#991b1b;">Egreso</span></div>
+              <div class="tx-cell neg">−$1,850</div>
+            </div>
+            <div class="tx-table-row">
+              <div class="tx-cell"><div class="tx-icon-row"><div class="tx-dot-row" style="background:#f87171;"></div></div>Cafetería central</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#fef2f2;color:#991b1b;">Comida</span></div>
+              <div class="tx-cell muted">26 abr 2026</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#fef2f2;color:#991b1b;">Egreso</span></div>
+              <div class="tx-cell neg">−$450</div>
+            </div>
+            <div class="tx-table-row">
+              <div class="tx-cell"><div class="tx-icon-row"><div class="tx-dot-row" style="background:#a78bfa;"></div></div>Freelance diseño</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#f5f3ff;color:#4c1d95;">Ingresos</span></div>
+              <div class="tx-cell muted">25 abr 2026</div>
+              <div class="tx-cell"><span class="cat-badge" style="background:#f0fdf4;color:#166534;">Ingreso</span></div>
+              <div class="tx-cell pos">+$3,500</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann"><div class="ann-dot"></div><span>Tabla con 5 columnas: descripción, categoría, fecha, tipo, monto</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>Badges de color semántico por categoría y tipo (egreso/ingreso)</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>Barra de filtros horizontal + buscador full-width</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>Monto alineado a la derecha, rojo/verde según tipo</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 3: ADD TRANSACTION -->
+<div class="screen-block">
+  <div class="screen-label">3 · Agregar transacción</div>
+  <div class="browser-frame">
+    <div class="browser-bar">
+      <div class="browser-dots">
+        <div class="browser-dot" style="background:#f87171;"></div>
+        <div class="browser-dot" style="background:#fbbf24;"></div>
+        <div class="browser-dot" style="background:#4ade80;"></div>
+      </div>
+      <div class="browser-url">app.finanzas.io/nueva-transaccion</div>
+    </div>
+    <div class="app-shell">
+      <div class="sidebar">
+        <div class="sidebar-logo"><div class="sidebar-logo-name">Finanzas</div><div class="sidebar-logo-sub">Gestión personal</div></div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Principal</div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Dashboard</div></div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Transacciones</div></div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Reportes</div></div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Cuenta</div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Perfil</div></div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Configuración</div></div>
+        </div>
+        <div class="sidebar-user"><div class="sidebar-avatar">MG</div><div><div class="sidebar-user-name">María G.</div><div class="sidebar-user-email">maria@email.com</div></div></div>
+      </div>
+      <div class="main-content">
+        <div class="topbar">
+          <div class="topbar-title">Nueva transacción</div>
+          <div class="topbar-right">
+            <div class="topbar-link">← Volver a transacciones</div>
+          </div>
+        </div>
+        <div class="content-area" style="padding: 20px 24px;">
+          <div class="form-grid">
+            <div class="form-panel">
+              <div class="type-toggle">
+                <div class="type-btn active">Gasto</div>
+                <div class="type-btn inactive">Ingreso</div>
+              </div>
+              <div class="form-field">
+                <div class="field-label">Monto</div>
+                <div class="amount-field"><span class="amount-cur">$</span><span class="amount-val">0</span></div>
+              </div>
+              <div class="form-field">
+                <div class="field-label">Categoría</div>
+                <div class="cat-pills">
+                  <div class="cat-pill sel">Comida</div>
+                  <div class="cat-pill">Transporte</div>
+                  <div class="cat-pill">Servicios</div>
+                  <div class="cat-pill">Salud</div>
+                  <div class="cat-pill">Ocio</div>
+                  <div class="cat-pill">Educación</div>
+                  <div class="cat-pill">Otro</div>
+                </div>
+              </div>
+              <div class="form-field">
+                <div class="field-label">Descripción</div>
+                <div class="field-input">Ej: Almuerzo en el trabajo</div>
+              </div>
+              <div class="form-field" style="margin-bottom:0;">
+                <div class="field-label">Fecha</div>
+                <div class="field-input filled">Hoy, 28 de abril de 2026</div>
+              </div>
+            </div>
+            <div class="preview-panel">
+              <div class="panel-title">Vista previa</div>
+              <div class="preview-card">
+                <div class="preview-row"><span class="preview-key">Tipo</span><span class="cat-badge" style="background:#fef2f2;color:#991b1b;font-size:10px;padding:2px 8px;border-radius:8px;">Gasto</span></div>
+                <div class="preview-row"><span class="preview-key">Monto</span><span class="preview-val" style="color:#dc2626;">−$0</span></div>
+                <div class="preview-row"><span class="preview-key">Categoría</span><span class="preview-val">Comida</span></div>
+                <div class="preview-row"><span class="preview-key">Descripción</span><span class="preview-val" style="color:#aaa;">Sin descripción</span></div>
+                <div class="preview-row"><span class="preview-key">Fecha</span><span class="preview-val">28 abr 2026</span></div>
+              </div>
+              <div class="preview-note">La vista previa se actualiza en tiempo real mientras completás el formulario.</div>
+              <div class="submit-btn"><div class="submit-btn-text">Guardar transacción</div></div>
+              <div class="submit-hint">o presioná Enter para guardar</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann"><div class="ann-dot"></div><span>Layout 2 columnas: formulario izquierda, vista previa en tiempo real derecha</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>Toggle gasto/ingreso arriba del formulario</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>Categorías como pills seleccionables con estado visual activo</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>CTA en el panel de preview + hint de atajo de teclado</span></div>
+  </div>
+</div>
+
+<!-- SCREEN 4: PROFILE -->
+<div class="screen-block">
+  <div class="screen-label">4 · Perfil y configuración</div>
+  <div class="browser-frame">
+    <div class="browser-bar">
+      <div class="browser-dots">
+        <div class="browser-dot" style="background:#f87171;"></div>
+        <div class="browser-dot" style="background:#fbbf24;"></div>
+        <div class="browser-dot" style="background:#4ade80;"></div>
+      </div>
+      <div class="browser-url">app.finanzas.io/perfil</div>
+    </div>
+    <div class="app-shell">
+      <div class="sidebar">
+        <div class="sidebar-logo"><div class="sidebar-logo-name">Finanzas</div><div class="sidebar-logo-sub">Gestión personal</div></div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Principal</div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Dashboard</div></div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Transacciones</div></div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Reportes</div></div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-label">Cuenta</div>
+          <div class="nav-item active"><div class="nav-icon" style="background:rgba(255,255,255,0.15);"><div class="nav-icon-inner" style="background:#fff;"></div></div><div class="nav-text">Perfil</div></div>
+          <div class="nav-item"><div class="nav-icon"><div class="nav-icon-inner" style="background:rgba(255,255,255,0.35);"></div></div><div class="nav-text">Configuración</div></div>
+        </div>
+        <div class="sidebar-user"><div class="sidebar-avatar">MG</div><div><div class="sidebar-user-name">María G.</div><div class="sidebar-user-email">maria@email.com</div></div></div>
+      </div>
+      <div class="main-content">
+        <div class="topbar">
+          <div class="topbar-title">Mi perfil</div>
+          <div class="topbar-right">
+            <div class="topbar-btn" style="background:#f7f7f2;border:0.5px solid #d0d0cc;"><div class="topbar-btn-text" style="color:#1a1a1a;">Editar perfil</div></div>
+          </div>
+        </div>
+        <div class="content-area">
+          <div class="profile-grid">
+            <div class="profile-card">
+              <div class="profile-avatar">MG</div>
+              <div class="profile-name">María García</div>
+              <div class="profile-email">maria.garcia@email.com</div>
+              <div class="profile-divider"></div>
+              <div class="profile-stat-row">
+                <div class="profile-stat"><div class="profile-stat-val">147</div><div class="profile-stat-label">Transacciones</div></div>
+                <div class="profile-stat"><div class="profile-stat-val">8</div><div class="profile-stat-label">Meses activo</div></div>
+              </div>
+              <div class="profile-divider"></div>
+              <div class="profile-since">Miembro desde agosto 2025</div>
+              <div class="logout-btn"><div class="logout-text">Cerrar sesión</div></div>
+            </div>
+            <div class="settings-panels">
+              <div class="settings-card">
+                <div class="panel-title" style="margin-bottom:10px;">Preferencias</div>
+                <div class="settings-row">
+                  <div class="settings-icon"><div class="settings-icon-inner" style="background:#0284c7;"></div></div>
+                  <div class="settings-label">Moneda</div>
+                  <div class="settings-val">Peso argentino (ARS)</div>
+                  <div class="chevron">›</div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-icon"><div class="settings-icon-inner" style="background:#9333ea;"></div></div>
+                  <div class="settings-label">Notificaciones</div>
+                  <div class="toggle on"><div class="toggle-knob"></div></div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-icon"><div class="settings-icon-inner" style="background:#ca8a04;"></div></div>
+                  <div class="settings-label">Tema oscuro</div>
+                  <div class="toggle off"><div class="toggle-knob"></div></div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-icon"><div class="settings-icon-inner" style="background:#16a34a;"></div></div>
+                  <div class="settings-label">Inicio del mes</div>
+                  <div class="settings-val">Día 1</div>
+                  <div class="chevron">›</div>
+                </div>
+              </div>
+              <div class="settings-card">
+                <div class="panel-title" style="margin-bottom:10px;">Cuenta y seguridad</div>
+                <div class="settings-row">
+                  <div class="settings-icon"><div class="settings-icon-inner" style="background:#475569;"></div></div>
+                  <div class="settings-label">Cambiar contraseña</div>
+                  <div class="chevron">›</div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-icon"><div class="settings-icon-inner" style="background:#475569;"></div></div>
+                  <div class="settings-label">Exportar mis datos</div>
+                  <div class="settings-val">CSV / JSON</div>
+                  <div class="chevron">›</div>
+                </div>
+                <div class="settings-row">
+                  <div class="settings-icon"><div class="settings-icon-inner" style="background:#dc2626;"></div></div>
+                  <div class="settings-label" style="color:#dc2626;">Eliminar cuenta</div>
+                  <div class="chevron" style="color:#dc2626;">›</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann"><div class="ann-dot"></div><span>Tarjeta de perfil izquierda con stats de uso del usuario</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>Toggles on/off para notificaciones y tema oscuro</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>Sección seguridad separada — eliminar cuenta en rojo</span></div>
+    <div class="ann"><div class="ann-dot"></div><span>Logout en la tarjeta de perfil, separado de la configuración</span></div>
+  </div>
+</div>
+
+<div class="footer">
+  Finanzas App — Wireframes Desktop MVP · Generado para implementación con Claude Code
+</div>
+
+</body>
+</html>

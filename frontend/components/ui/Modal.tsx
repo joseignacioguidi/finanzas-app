@@ -27,7 +27,7 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
         onClick={onClose}
       />
       <div
-        className="relative z-10 w-full max-w-md rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[var(--shadow-xl)] p-6"
+        className="relative z-10 w-full max-w-md rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] shadow-lg p-6"
         style={{ animation: 'modalIn 0.2s cubic-bezier(0.34,1.56,0.64,1)' }}
       >
         <div className="flex items-center justify-between mb-5">
