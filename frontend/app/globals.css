@@ -1,26 +1,107 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* ── Fuentes ── */
+  --font-display: "Plus Jakarta Sans", sans-serif;
+  --font-body:    "DM Sans", sans-serif;
+  --font-mono:    "JetBrains Mono", monospace;
+
+  /* ── Marca ── */
+  --color-brand:         #00C9A7;
+  --color-brand-hover:   #00B596;
+  --color-brand-dim:     #007D68;
+  --color-brand-bg:      #002922;
+  --color-brand-glow:    rgba(0, 201, 167, 0.15);
+
+  /* ── Semánticos financieros ── */
+  --color-income:         #10D9A0;
+  --color-income-dim:     #0A9E74;
+  --color-income-bg:      #0A2E22;
+  --color-income-border:  #0F6648;
+
+  --color-expense:        #F0516A;
+  --color-expense-dim:    #B83C52;
+  --color-expense-bg:     #2E0F18;
+  --color-expense-border: #7A2535;
+
+  --color-neutral:        #6B9FDB;
+  --color-neutral-bg:     #0F1E35;
+
+  /* ── Fondos ── */
+  --color-bg-base:        #0C0F14;
+  --color-bg-surface:     #141820;
+  --color-bg-elevated:    #1C2230;
+  --color-bg-overlay:     #252D3D;
+  --color-bg-muted:       #2E3748;
+
+  /* ── Texto ── */
+  --color-text-primary:   #F0F4FF;
+  --color-text-secondary: #8B95A8;
+  --color-text-muted:     #545E6F;
+  --color-text-inverse:   #0C0F14;
+
+  /* ── Bordes ── */
+  --color-border:         #252D3D;
+  --color-border-subtle:  #1C2230;
+  --color-border-strong:  #3A4558;
+
+  /* ── Estados ── */
+  --color-warning:        #F5A623;
+  --color-warning-bg:     #2E1F06;
+  --color-error:          #F0516A;
+  --color-error-bg:       #2E0F18;
+  --color-success:        #10D9A0;
+  --color-success-bg:     #0A2E22;
+  --color-info:           #6B9FDB;
+  --color-info-bg:        #0F1E35;
+
+  /* ── Sombras ── */
+  --shadow-brand:   0 0 20px rgba(0, 201, 167, 0.2);
+  --shadow-income:  0 0 16px rgba(16, 217, 160, 0.15);
+  --shadow-expense: 0 0 16px rgba(240, 81, 106, 0.15);
+
+  /* ── Duración de animaciones ── */
+  --duration-fast:   100ms;
+  --duration-base:   150ms;
+  --duration-slow:   250ms;
+  --duration-slower: 400ms;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Reset y base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  min-height: 100vh;
+}
+
+/* ── Scrollbar personalizado ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-bg-muted);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-strong);
+}
+
+/* ── Selección de texto ── */
+::selection {
+  background: var(--color-brand-bg);
+  color: var(--color-brand);
 }

@@ -29,6 +29,33 @@ export interface Transaction {
   updated_at: string
 }
 
+export interface MonthlyStatRow {
+  month: string
+  income: number
+  expense: number
+}
+
+export interface CategoryStatRow {
+  category_id: string
+  category_name: string
+  color: string
+  total: number
+}
+
 export interface APIError {
   error: string
+}
+
+export interface TransactionInput {
+  category_id: string
+  type: TransactionType
+  amount: number
+  currency: string
+  description?: string
+  date: string
+}
+
+export interface CategoryInput {
+  name: string
+  color: string
 }

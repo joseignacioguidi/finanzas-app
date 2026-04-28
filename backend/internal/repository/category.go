@@ -25,7 +25,7 @@ func NewCategoryRepository(db *gorm.DB) CategoryRepository {
 }
 
 func (r *categoryRepo) FindAll(ctx context.Context, userID uuid.UUID) ([]model.Category, error) {
-	var cats []model.Category
+	cats := make([]model.Category, 0)
 	if err := r.db.WithContext(ctx).Where("user_id = ?", userID).Find(&cats).Error; err != nil {
 		return nil, err
 	}

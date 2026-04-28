@@ -46,7 +46,7 @@ func NewTransactionRepository(db *gorm.DB) TransactionRepository {
 }
 
 func (r *transactionRepo) FindAll(ctx context.Context, userID uuid.UUID, filter TransactionFilter) ([]model.Transaction, error) {
-	var txs []model.Transaction
+	txs := make([]model.Transaction, 0)
 	q := r.db.WithContext(ctx).Where("user_id = ?", userID)
 
 	if filter.Month != "" {
@@ -86,7 +86,7 @@ func (r *transactionRepo) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (r *transactionRepo) MonthlyStats(ctx context.Context, userID uuid.UUID) ([]MonthlyStatRow, error) {
-	var rows []MonthlyStatRow
+	rows := make([]MonthlyStatRow, 0)
 	err := r.db.WithContext(ctx).Raw(`
 		SELECT
 			TO_CHAR(DATE_TRUNC('month', date), 'YYYY-MM') AS month,
@@ -102,7 +102,7 @@ func (r *transactionRepo) MonthlyStats(ctx context.Context, userID uuid.UUID) ([
 }
 
 func (r *transactionRepo) CategoryStats(ctx context.Context, userID uuid.UUID) ([]CategoryStatRow, error) {
-	var rows []CategoryStatRow
+	rows := make([]CategoryStatRow, 0)
 	err := r.db.WithContext(ctx).Raw(`
 		SELECT
 			t.category_id::text AS category_id,

@@ -1,53 +1,48 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { login as apiLogin } from '@/lib/api'
+import { register as apiRegister, login as apiLogin } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 
-export default function LoginPage() {
-  const { login, token, loading } = useAuth()
+export default function RegisterPage() {
+  const { login } = useAuth()
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
-
-  useEffect(() => {
-    if (!loading && token) router.replace('/dashboard')
-  }, [token, loading, router])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError('')
+    if (password !== confirm) { setError('Las contraseñas no coinciden'); return }
+    if (password.length < 6) { setError('La contraseña debe tener al menos 6 caracteres'); return }
+
     setSubmitting(true)
     try {
-      const { token: newToken } = await apiLogin(email, password)
-      // Guardamos el token — el user se carga en la próxima request autenticada
-      // Por ahora construimos un user mínimo desde el email
-      login(newToken, { id: '', email, created_at: '', updated_at: '' })
+      const user = await apiRegister(email, password)
+      const { token } = await apiLogin(email, password)
+      login(token, user)
       router.push('/dashboard')
     } catch (err: any) {
-      setError(err.message ?? 'Credenciales incorrectas')
+      setError(err.message ?? 'Error al registrarse')
     } finally {
       setSubmitting(false)
     }
   }
 
-  if (loading) return null
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg-base)] px-4">
-      {/* Fondo decorativo */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[var(--color-brand)] opacity-[0.04] blur-[120px]" />
       </div>
 
       <div className="relative w-full max-w-sm">
-        {/* Logo */}
         <div className="text-center mb-8">
           <h1
             className="text-3xl font-bold text-[var(--color-text-primary)]"
@@ -57,14 +52,13 @@ export default function LoginPage() {
             <span style={{ color: 'var(--color-brand)' }}>.</span>
           </h1>
           <p className="mt-2 text-sm text-[var(--color-text-muted)]">
-            Tu control de gastos personales
+            Creá tu cuenta gratis
           </p>
         </div>
 
-        {/* Card */}
         <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] p-8">
           <h2 className="text-base font-semibold text-[var(--color-text-primary)] mb-6">
-            Iniciá sesión
+            Crear cuenta
           </h2>
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -83,8 +77,17 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-              autoComplete="current-password"
+              placeholder="Mínimo 6 caracteres"
+              autoComplete="new-password"
+              required
+            />
+            <Input
+              label="Confirmar contraseña"
+              type="password"
+              value={confirm}
+              onChange={e => setConfirm(e.target.value)}
+              placeholder="Repetí la contraseña"
+              autoComplete="new-password"
               required
             />
 
@@ -95,14 +98,14 @@ export default function LoginPage() {
             )}
 
             <Button type="submit" loading={submitting} className="w-full mt-1">
-              Ingresar
+              Crear cuenta
             </Button>
           </form>
 
           <p className="mt-5 text-center text-sm text-[var(--color-text-muted)]">
-            ¿No tenés cuenta?{' '}
-            <Link href="/register" className="text-[var(--color-brand)] hover:underline font-medium">
-              Registrate
+            ¿Ya tenés cuenta?{' '}
+            <Link href="/" className="text-[var(--color-brand)] hover:underline font-medium">
+              Iniciá sesión
             </Link>
           </p>
         </div>
