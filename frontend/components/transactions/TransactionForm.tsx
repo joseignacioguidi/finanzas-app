@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getCategories, createTransaction, updateTransaction } from '@/lib/api'
+import { getCategories, createTransaction, updateTransaction, createRecurringTransaction } from '@/lib/api'
 import type { Category, Transaction, TransactionInput } from '@/lib/types'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
@@ -19,6 +19,7 @@ export default function TransactionForm({ initial, onSuccess, onCancel }: Transa
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [isRecurring, setIsRecurring] = useState(false)
 
   const [form, setForm] = useState<TransactionInput>({
     category_id: initial?.category_id ?? '',
@@ -26,7 +27,7 @@ export default function TransactionForm({ initial, onSuccess, onCancel }: Transa
     amount: initial?.amount ?? 0,
     currency: initial?.currency ?? 'ARS',
     description: initial?.description ?? '',
-    date: initial?.date ? initial.date.split('T')[0] : new Date().toISOString().split('T')[0],
+    date: initial?.date ? new Date(initial.date).toISOString().split('T')[0] : (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` })(),
   })
 
   useEffect(() => {
@@ -47,6 +48,8 @@ export default function TransactionForm({ initial, onSuccess, onCancel }: Transa
     try {
       if (initial) {
         await updateTransaction(initial.id, form)
+      } else if (isRecurring) {
+        await createRecurringTransaction(form)
       } else {
         await createTransaction(form)
       }
@@ -137,6 +140,40 @@ export default function TransactionForm({ initial, onSuccess, onCancel }: Transa
         placeholder="Ej: supermercado, Netflix…"
         maxLength={255}
       />
+
+      {/* Recurrente — solo al crear */}
+      {!initial && (
+        <button
+          type="button"
+          onClick={() => setIsRecurring(prev => !prev)}
+          className={[
+            'flex items-center gap-3 px-3 py-2.5 rounded-md border text-sm transition-all duration-150 text-left',
+            isRecurring
+              ? 'bg-[var(--color-bg-elevated)] border-[var(--color-border-strong)] text-[var(--color-text)]'
+              : 'bg-transparent border-[var(--color-border)] text-[var(--color-text-muted)] hover:border-[var(--color-border-strong)]',
+          ].join(' ')}
+        >
+          <div
+            className={[
+              'w-8 h-4 rounded-full transition-colors duration-150 relative shrink-0',
+              isRecurring ? 'bg-[var(--color-accent)]' : 'bg-[var(--color-border-strong)]',
+            ].join(' ')}
+          >
+            <div
+              className={[
+                'absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform duration-150',
+                isRecurring ? 'translate-x-4' : 'translate-x-0.5',
+              ].join(' ')}
+            />
+          </div>
+          <div>
+            <div className="font-medium leading-tight">Gasto/ingreso fijo</div>
+            <div className="text-xs text-[var(--color-text-muted)] leading-tight mt-0.5">
+              Se repetirá cada mes en el mismo día
+            </div>
+          </div>
+        </button>
+      )}
 
       {error && (
         <p className="text-sm text-[var(--color-expense)] bg-[var(--color-expense-bg)] border border-[var(--color-expense-border)] rounded-md px-3 py-2">

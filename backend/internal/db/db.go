@@ -19,7 +19,7 @@ func Connect() *gorm.DB {
 	}
 
 	// AutoMigrate crea columnas/índices nuevos pero no toca lo que ya existe
-	models := []any{&model.User{}, &model.Category{}, &model.Transaction{}}
+	models := []any{&model.User{}, &model.Category{}, &model.Transaction{}, &model.RecurringTransaction{}}
 	for _, m := range models {
 		if err := db.AutoMigrate(m); err != nil {
 			log.Printf("advertencia en migración (%T): %v", m, err)

@@ -24,18 +24,21 @@ func main() {
 	userRepo := repository.NewUserRepository(database)
 	catRepo := repository.NewCategoryRepository(database)
 	txRepo := repository.NewTransactionRepository(database)
+	recurringRepo := repository.NewRecurringTransactionRepository(database)
 
 	// Services
 	catSvc := service.NewCategoryService(catRepo, txRepo)
 	authSvc := service.NewAuthService(userRepo, catSvc)
 	txSvc := service.NewTransactionService(txRepo)
 	statsSvc := service.NewStatsService(txRepo)
+	recurringSvc := service.NewRecurringTransactionService(recurringRepo, txRepo)
 
 	// Handlers
 	authH := handler.NewAuthHandler(authSvc)
 	catH := handler.NewCategoryHandler(catSvc)
 	txH := handler.NewTransactionHandler(txSvc)
 	statsH := handler.NewStatsHandler(statsSvc)
+	recurringH := handler.NewRecurringTransactionHandler(recurringSvc)
 
 	r := gin.Default()
 
@@ -69,6 +72,10 @@ func main() {
 			protected.POST("/transactions", txH.Create)
 			protected.PUT("/transactions/:id", txH.Update)
 			protected.DELETE("/transactions/:id", txH.Delete)
+
+			protected.GET("/recurring", recurringH.GetAll)
+			protected.POST("/recurring", recurringH.Create)
+			protected.DELETE("/recurring/:id", recurringH.Deactivate)
 
 			protected.GET("/categories", catH.GetAll)
 			protected.POST("/categories", catH.Create)

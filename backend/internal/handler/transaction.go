@@ -21,8 +21,10 @@ func (h *TransactionHandler) GetAll(c *gin.Context) {
 	userID := c.MustGet("userID").(uuid.UUID)
 	filter := repository.TransactionFilter{
 		Month:      c.Query("month"),
+		Year:       c.Query("year"),
 		Type:       c.Query("type"),
 		CategoryID: c.Query("category"),
+		Status:     c.Query("status"),
 	}
 	txs, err := h.svc.GetAll(c.Request.Context(), userID, filter)
 	if err != nil {

@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ArrowLeftRight, User } from 'lucide-react'
+import { LayoutDashboard, ArrowLeftRight, CalendarDays, User } from 'lucide-react'
 
 const tabs = [
   { href: '/dashboard', label: 'Inicio', icon: LayoutDashboard, segment: 'dashboard' },
   { href: '/transactions', label: 'Movim.', icon: ArrowLeftRight, segment: 'transactions' },
+  { href: '/calendar', label: 'Calendario', icon: CalendarDays, segment: 'calendar' },
   { href: '/profile', label: 'Perfil', icon: User, segment: 'profile' },
 ]
 

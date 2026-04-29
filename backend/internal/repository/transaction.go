@@ -10,8 +10,10 @@ import (
 
 type TransactionFilter struct {
 	Month      string // "YYYY-MM", opcional
+	Year       string // "YYYY", opcional
 	Type       string // "income" | "expense", opcional
 	CategoryID string // UUID string, opcional
+	Status     string // "confirmed" | "pending" | "" (todos)
 }
 
 type MonthlyStatRow struct {
@@ -33,6 +35,7 @@ type TransactionRepository interface {
 	Create(ctx context.Context, tx *model.Transaction) error
 	Update(ctx context.Context, tx *model.Transaction) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	DeletePendingByRecurringID(ctx context.Context, recurringID uuid.UUID) error
 	CountByCategory(ctx context.Context, categoryID uuid.UUID) (int64, error)
 	MonthlyStats(ctx context.Context, userID uuid.UUID) ([]MonthlyStatRow, error)
 	CategoryStats(ctx context.Context, userID uuid.UUID) ([]CategoryStatRow, error)
@@ -53,11 +56,17 @@ func (r *transactionRepo) FindAll(ctx context.Context, userID uuid.UUID, filter 
 	if filter.Month != "" {
 		q = q.Where("TO_CHAR(date, 'YYYY-MM') = ?", filter.Month)
 	}
+	if filter.Year != "" {
+		q = q.Where("TO_CHAR(date, 'YYYY') = ?", filter.Year)
+	}
 	if filter.Type != "" {
 		q = q.Where("type = ?", filter.Type)
 	}
 	if filter.CategoryID != "" {
 		q = q.Where("category_id = ?", filter.CategoryID)
+	}
+	if filter.Status != "" {
+		q = q.Where("status = ?", filter.Status)
 	}
 
 	if err := q.Order("date DESC").Find(&txs).Error; err != nil {
@@ -86,6 +95,12 @@ func (r *transactionRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Delete(&model.Transaction{}, "id = ?", id).Error
 }
 
+func (r *transactionRepo) DeletePendingByRecurringID(ctx context.Context, recurringID uuid.UUID) error {
+	return r.db.WithContext(ctx).
+		Where("recurring_id = ? AND status = ?", recurringID, model.TransactionStatusPending).
+		Delete(&model.Transaction{}).Error
+}
+
 func (r *transactionRepo) CountByCategory(ctx context.Context, categoryID uuid.UUID) (int64, error) {
 	var count int64
 	err := r.db.WithContext(ctx).Model(&model.Transaction{}).Where("category_id = ?", categoryID).Count(&count).Error
@@ -101,6 +116,7 @@ func (r *transactionRepo) MonthlyStats(ctx context.Context, userID uuid.UUID) ([
 			SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS expense
 		FROM transactions
 		WHERE user_id = ?
+		  AND status = 'confirmed'
 		  AND date >= NOW() - INTERVAL '12 months'
 		GROUP BY DATE_TRUNC('month', date)
 		ORDER BY DATE_TRUNC('month', date)
@@ -119,6 +135,7 @@ func (r *transactionRepo) CategoryStats(ctx context.Context, userID uuid.UUID) (
 		FROM transactions t
 		JOIN categories c ON c.id = t.category_id
 		WHERE t.user_id = ?
+		  AND t.status = 'confirmed'
 		  AND DATE_TRUNC('month', t.date) = DATE_TRUNC('month', NOW())
 		GROUP BY t.category_id, c.name, c.color
 		ORDER BY total DESC

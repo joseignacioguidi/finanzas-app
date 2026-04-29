@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { getCategories, createTransaction } from '@/lib/api'
+import { getCategories, createTransaction, createRecurringTransaction } from '@/lib/api'
 import type { Category, TransactionInput } from '@/lib/types'
 import AppShell from '@/components/layout/AppShell'
 import CategoryForm from '@/components/categories/CategoryForm'
@@ -44,6 +44,7 @@ function NewTransactionContent() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showNewCategory, setShowNewCategory] = useState(false)
+  const [isRecurring, setIsRecurring] = useState(false)
 
   const [form, setForm] = useState<TransactionInput>({
     category_id: '',
@@ -80,7 +81,11 @@ function NewTransactionContent() {
 
     setLoading(true)
     try {
-      await createTransaction(form)
+      if (isRecurring) {
+        await createRecurringTransaction(form)
+      } else {
+        await createTransaction(form)
+      }
       router.push('/transactions')
     } catch (err: any) {
       setError(err.message ?? 'Error al guardar')
@@ -270,6 +275,35 @@ function NewTransactionContent() {
             />
           </div>
 
+          {/* Recurrente */}
+          <button
+            type="button"
+            onClick={() => setIsRecurring(prev => !prev)}
+            className="flex items-center gap-3 w-full text-left rounded-[8px] px-3 py-2.5 transition-all duration-100"
+            style={
+              isRecurring
+                ? { background: '#f7f7f2', border: '0.5px solid #c0c0b8' }
+                : { background: 'transparent', border: '0.5px solid #e0e0d8' }
+            }
+          >
+            <div
+              className="relative shrink-0 rounded-full transition-colors duration-150"
+              style={{
+                width: 32, height: 16,
+                background: isRecurring ? '#1a1a2e' : '#d0d0cc',
+              }}
+            >
+              <div
+                className="absolute top-0.5 w-3 h-3 rounded-full bg-white transition-transform duration-150"
+                style={{ transform: isRecurring ? 'translateX(18px)' : 'translateX(2px)' }}
+              />
+            </div>
+            <div>
+              <div className="text-[11px] font-medium" style={{ color: '#1a1a1a' }}>Gasto/ingreso fijo</div>
+              <div className="text-[10px]" style={{ color: '#aaa' }}>Se repetirá cada mes en el mismo día</div>
+            </div>
+          </button>
+
           {/* Error */}
           {error && (
             <p className="text-[12px] text-[var(--color-expense)] bg-[var(--color-expense-bg)] border border-[var(--color-expense-border)] rounded-[8px] px-3 py-2">
@@ -351,6 +385,21 @@ function NewTransactionContent() {
                 value: (
                   <span className="text-[12px] font-medium text-[var(--color-text-primary)]">
                     {fmtDateLabel(form.date)}
+                  </span>
+                ),
+              },
+              {
+                key: 'Recurrente',
+                value: (
+                  <span
+                    className="text-[10px] px-2 py-0.5 rounded-[8px]"
+                    style={
+                      isRecurring
+                        ? { background: '#eef2ff', color: '#3730a3' }
+                        : { background: '#f7f7f2', color: '#aaa' }
+                    }
+                  >
+                    {isRecurring ? 'Mensual' : 'Una vez'}
                   </span>
                 ),
               },

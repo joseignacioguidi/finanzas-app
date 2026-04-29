@@ -6,6 +6,8 @@ import type {
   CategoryStatRow,
   TransactionInput,
   CategoryInput,
+  RecurringTransaction,
+  RecurringTransactionInput,
   APIError,
 } from '@/lib/types'
 
@@ -56,15 +58,19 @@ export async function login(email: string, password: string): Promise<{ token: s
 
 interface TransactionFilter {
   month?: string
+  year?: string
   type?: string
   category?: string
+  status?: string
 }
 
 export async function getTransactions(filter?: TransactionFilter): Promise<Transaction[]> {
   const params = new URLSearchParams()
   if (filter?.month) params.set('month', filter.month)
+  if (filter?.year) params.set('year', filter.year)
   if (filter?.type) params.set('type', filter.type)
   if (filter?.category) params.set('category', filter.category)
+  if (filter?.status) params.set('status', filter.status)
   const qs = params.toString()
   const data = await apiFetch<Transaction[] | null>(`/api/transactions${qs ? `?${qs}` : ''}`)
   return data ?? []
@@ -86,6 +92,24 @@ export async function updateTransaction(id: string, input: TransactionInput): Pr
 
 export async function deleteTransaction(id: string): Promise<void> {
   return apiFetch<void>(`/api/transactions/${id}`, { method: 'DELETE' })
+}
+
+// ── Recurring transactions ────────────────────────────────────────────────────
+
+export async function getRecurringTransactions(): Promise<RecurringTransaction[]> {
+  const data = await apiFetch<RecurringTransaction[] | null>('/api/recurring')
+  return data ?? []
+}
+
+export async function createRecurringTransaction(input: RecurringTransactionInput): Promise<RecurringTransaction> {
+  return apiFetch<RecurringTransaction>('/api/recurring', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export async function deactivateRecurringTransaction(id: string): Promise<void> {
+  return apiFetch<void>(`/api/recurring/${id}`, { method: 'DELETE' })
 }
 
 // ── Categories ────────────────────────────────────────────────────────────────

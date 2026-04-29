@@ -17,6 +17,8 @@ export interface Category {
   updated_at: string
 }
 
+export type TransactionStatus = 'confirmed' | 'pending'
+
 export interface Transaction {
   id: string
   user_id: string
@@ -26,8 +28,33 @@ export interface Transaction {
   currency: string
   description: string
   date: string
+  status: TransactionStatus
+  recurring_id: string | null
   created_at: string
   updated_at: string
+}
+
+export interface RecurringTransaction {
+  id: string
+  user_id: string
+  category_id: string
+  type: TransactionType
+  amount: number
+  currency: string
+  description: string
+  day_of_month: number
+  active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface RecurringTransactionInput {
+  category_id: string
+  type: TransactionType
+  amount: number
+  currency: string
+  description?: string
+  date: string
 }
 
 export interface MonthlyStatRow {

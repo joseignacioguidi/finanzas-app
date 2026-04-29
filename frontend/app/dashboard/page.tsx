@@ -8,13 +8,14 @@ import type { Transaction, MonthlyStatRow, CategoryStatRow } from '@/lib/types'
 import { useAuth } from '@/lib/auth'
 import AppShell from '@/components/layout/AppShell'
 import MonthlyBar from '@/components/charts/MonthlyBar'
+import MonthPicker from '@/components/ui/MonthPicker'
 
 function fmt(n: number) {
   return new Intl.NumberFormat('es').format(Math.round(n))
 }
 
 function fmtDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('es', { day: '2-digit', month: 'short' })
+  return new Date(dateStr).toLocaleDateString('es', { day: '2-digit', month: 'short', timeZone: 'UTC' })
 }
 
 function greeting() {
@@ -57,14 +58,16 @@ const quickActions = [
 export default function DashboardPage() {
   const { user } = useAuth()
   const router = useRouter()
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth())
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [monthly, setMonthly] = useState<MonthlyStatRow[]>([])
   const [catStats, setCatStats] = useState<CategoryStatRow[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    setLoading(true)
     Promise.allSettled([
-      getTransactions({ month: currentMonth() }),
+      getTransactions({ month: selectedMonth }),
       getMonthlyStats(),
       getCategoryStats(),
     ]).then(([txsResult, monResult, catsResult]) => {
@@ -72,7 +75,7 @@ export default function DashboardPage() {
       if (monResult.status === 'fulfilled') setMonthly(monResult.value)
       if (catsResult.status === 'fulfilled') setCatStats(catsResult.value)
     }).finally(() => setLoading(false))
-  }, [])
+  }, [selectedMonth])
 
   const income = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
   const expense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
@@ -92,12 +95,7 @@ export default function DashboardPage() {
 
   const headerRight = (
     <>
-      <span
-        className="text-[11px] text-[var(--color-text-muted)] px-2.5 py-1 rounded-[6px]"
-        style={{ background: '#f7f7f2', border: '0.5px solid #e0e0d8' }}
-      >
-        {monthLabel()}
-      </span>
+      <MonthPicker month={selectedMonth} onChange={setSelectedMonth} />
       <Link
         href="/transactions/new"
         className="h-[30px] px-3.5 rounded-[7px] text-[11px] font-medium text-white flex items-center"
