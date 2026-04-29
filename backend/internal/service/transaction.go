@@ -37,7 +37,7 @@ func (s *TransactionService) Create(ctx context.Context, userID uuid.UUID, input
 		return nil, errors.New("category_id inválido")
 	}
 
-	date, err := time.Parse("2006-01-02", input.Date)
+	t, err := time.Parse("2006-01-02", input.Date)
 	if err != nil {
 		return nil, errors.New("fecha inválida, formato esperado: YYYY-MM-DD")
 	}
@@ -49,7 +49,7 @@ func (s *TransactionService) Create(ctx context.Context, userID uuid.UUID, input
 		Amount:      input.Amount,
 		Currency:    input.Currency,
 		Description: input.Description,
-		Date:        date,
+		Date:        model.Date{Time: t},
 	}
 
 	if err := s.repo.Create(ctx, tx); err != nil {
@@ -73,7 +73,7 @@ func (s *TransactionService) Update(ctx context.Context, userID uuid.UUID, id uu
 		return nil, errors.New("category_id inválido")
 	}
 
-	date, err := time.Parse("2006-01-02", input.Date)
+	t2, err := time.Parse("2006-01-02", input.Date)
 	if err != nil {
 		return nil, errors.New("fecha inválida, formato esperado: YYYY-MM-DD")
 	}
@@ -83,7 +83,7 @@ func (s *TransactionService) Update(ctx context.Context, userID uuid.UUID, id uu
 	tx.Amount = input.Amount
 	tx.Currency = input.Currency
 	tx.Description = input.Description
-	tx.Date = date
+	tx.Date = model.Date{Time: t2}
 
 	if err := s.repo.Update(ctx, tx); err != nil {
 		return nil, err

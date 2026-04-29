@@ -80,7 +80,7 @@ func (s *RecurringTransactionService) Create(ctx context.Context, userID uuid.UU
 			Amount:      rt.Amount,
 			Currency:    rt.Currency,
 			Description: rt.Description,
-			Date:        date,
+			Date:        model.Date{Time: date},
 			Status:      status,
 			RecurringID: &rt.ID,
 		}
