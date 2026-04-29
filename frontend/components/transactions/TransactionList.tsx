@@ -5,6 +5,7 @@ import { Pencil, Trash2, Search } from 'lucide-react'
 import { getTransactions, deleteTransaction, getCategories } from '@/lib/api'
 import type { Transaction, Category } from '@/lib/types'
 import Modal from '@/components/ui/Modal'
+import MultiSelect from '@/components/ui/MultiSelect'
 import TransactionForm from './TransactionForm'
 
 function currentMonth() {
@@ -29,7 +30,7 @@ export default function TransactionList() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState<'all' | 'income' | 'expense'>('all')
-  const [catFilter, setCatFilter] = useState('')
+  const [catFilter, setCatFilter] = useState<string[]>([])
   const [editTx, setEditTx] = useState<Transaction | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -62,7 +63,7 @@ export default function TransactionList() {
   const filtered = transactions.filter(tx => {
     if (typeFilter === 'income' && tx.type !== 'income') return false
     if (typeFilter === 'expense' && tx.type !== 'expense') return false
-    if (catFilter && tx.category_id !== catFilter) return false
+    if (catFilter.length > 0 && !catFilter.includes(tx.category_id)) return false
     if (search) {
       const q = search.toLowerCase()
       const cat = catMap[tx.category_id]
@@ -99,13 +100,13 @@ export default function TransactionList() {
           />
         </div>
 
-        {/* Pills tipo */}
-        <div className="flex gap-1.5 flex-wrap">
+        {/* Pills tipo + multiselect categorías */}
+        <div className="flex gap-1.5 shrink-0">
           {typePills.map(pill => (
             <button
               key={pill.key}
               onClick={() => setTypeFilter(pill.key)}
-              className="text-[10px] px-3 py-1 rounded-[10px] transition-colors"
+              className="text-[10px] px-3 py-1 rounded-[10px] transition-colors shrink-0"
               style={
                 typeFilter === pill.key
                   ? { background: '#1a1a2e', color: '#fff', border: '0.5px solid #1a1a2e' }
@@ -115,20 +116,12 @@ export default function TransactionList() {
               {pill.label}
             </button>
           ))}
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setCatFilter(prev => prev === cat.id ? '' : cat.id)}
-              className="text-[10px] px-3 py-1 rounded-[10px] transition-colors"
-              style={
-                catFilter === cat.id
-                  ? { background: '#1a1a2e', color: '#fff', border: '0.5px solid #1a1a2e' }
-                  : { background: '#fff', color: '#888', border: '0.5px solid #d0d0cc' }
-              }
-            >
-              {cat.name}
-            </button>
-          ))}
+          <MultiSelect
+            options={categories.map(cat => ({ value: cat.id, label: cat.name, color: cat.color }))}
+            selected={catFilter}
+            onChange={setCatFilter}
+            allLabel="Categorías"
+          />
         </div>
       </div>
 

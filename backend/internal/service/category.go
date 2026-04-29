@@ -79,11 +79,20 @@ func (s *CategoryService) Delete(ctx context.Context, userID uuid.UUID, id uuid.
 }
 
 var defaultCategories = []CategoryInput{
-	{Name: "Alimentación", Color: "#F5A623", Icon: "Utensils"},
-	{Name: "Transporte", Color: "#38BDF8", Icon: "Car"},
-	{Name: "Salud", Color: "#F0516A", Icon: "HeartPulse"},
-	{Name: "Vivienda", Color: "#10D9A0", Icon: "Home"},
-	{Name: "Entretenimiento", Color: "#C084FC", Icon: "Film"},
+	{Name: "Delivery", Color: "#F97316", Icon: "Bike"},
+	{Name: "Salud/Médicos", Color: "#EF4444", Icon: "Stethoscope"},
+	{Name: "Regalos", Color: "#EC4899", Icon: "Gift"},
+	{Name: "Mascotas", Color: "#84CC16", Icon: "PawPrint"},
+	{Name: "Impuestos", Color: "#6B7280", Icon: "Receipt"},
+	{Name: "Ropa", Color: "#A855F7", Icon: "Shirt"},
+	{Name: "Cuotas", Color: "#3B82F6", Icon: "CreditCard"},
+	{Name: "Apuestas", Color: "#F59E0B", Icon: "Dices"},
+	{Name: "Inversiones", Color: "#10B981", Icon: "TrendingUp"},
+	{Name: "Entretenimiento", Color: "#8B5CF6", Icon: "Tv"},
+	{Name: "Comida/Supermercado", Color: "#F5A623", Icon: "ShoppingCart"},
+	{Name: "Salidas", Color: "#06B6D4", Icon: "Music"},
+	{Name: "Gastos Personales", Color: "#64748B", Icon: "User"},
+	{Name: "Deportes", Color: "#22C55E", Icon: "Dumbbell"},
 }
 
 func (s *CategoryService) SeedDefaultCategories(ctx context.Context, userID uuid.UUID) {

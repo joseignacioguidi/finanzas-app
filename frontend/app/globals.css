@@ -94,3 +94,10 @@ body {
   background: var(--color-brand-bg);
   color: var(--color-brand);
 }
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
