@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { getCategories, createTransaction } from '@/lib/api'
 import type { Category, TransactionInput } from '@/lib/types'
 import AppShell from '@/components/layout/AppShell'
+import CategoryForm from '@/components/categories/CategoryForm'
 
 const CATEGORIES_DEFAULT = [
   { id: '__comida', name: 'Comida', color: '#f87171' },
@@ -42,6 +43,7 @@ function NewTransactionContent() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showNewCategory, setShowNewCategory] = useState(false)
 
   const [form, setForm] = useState<TransactionInput>({
     category_id: '',
@@ -53,11 +55,19 @@ function NewTransactionContent() {
   })
   const [amountInput, setAmountInput] = useState('')
 
-  useEffect(() => {
+  const loadCategories = useCallback((selectLast = false) => {
     getCategories()
-      .then(cats => setCategories(cats.length > 0 ? cats : CATEGORIES_DEFAULT as any))
+      .then(cats => {
+        const list = cats.length > 0 ? cats : CATEGORIES_DEFAULT as any
+        setCategories(list)
+        if (selectLast && cats.length > 0) {
+          set('category_id', cats[cats.length - 1].id)
+        }
+      })
       .catch(() => setCategories(CATEGORIES_DEFAULT as any))
   }, [])
+
+  useEffect(() => { loadCategories() }, [loadCategories])
 
   function set<K extends keyof TransactionInput>(key: K, value: TransactionInput[K]) {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -194,7 +204,40 @@ function NewTransactionContent() {
                   {cat.name}
                 </button>
               ))}
+              <button
+                type="button"
+                onClick={() => setShowNewCategory(true)}
+                className="text-[10px] px-2.5 py-1 rounded-[10px] transition-colors"
+                style={{ background: '#fff', color: '#888', border: '0.5px dashed #d0d0cc' }}
+                title="Crear nueva categoría"
+              >
+                + Nueva
+              </button>
             </div>
+
+            {/* Modal inline: nueva categoría */}
+            {showNewCategory && (
+              <div className="mt-3 rounded-[10px] p-4" style={{ background: '#f7f7f2', border: '0.5px solid #e0e0d8' }}>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] font-medium text-[var(--color-text-primary)]">Nueva categoría</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewCategory(false)}
+                    className="text-[18px] leading-none text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)]"
+                    style={{ lineHeight: 1 }}
+                  >
+                    ×
+                  </button>
+                </div>
+                <CategoryForm
+                  onSuccess={() => {
+                    setShowNewCategory(false)
+                    loadCategories(true)
+                  }}
+                  onCancel={() => setShowNewCategory(false)}
+                />
+              </div>
+            )}
           </div>
 
           {/* Descripción */}

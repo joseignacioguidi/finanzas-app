@@ -12,6 +12,7 @@ export interface Category {
   user_id: string
   name: string
   color: string
+  icon: string
   created_at: string
   updated_at: string
 }
@@ -58,4 +59,5 @@ export interface TransactionInput {
 export interface CategoryInput {
   name: string
   color: string
+  icon?: string
 }

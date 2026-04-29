@@ -26,8 +26,8 @@ func main() {
 	txRepo := repository.NewTransactionRepository(database)
 
 	// Services
-	authSvc := service.NewAuthService(userRepo)
-	catSvc := service.NewCategoryService(catRepo)
+	catSvc := service.NewCategoryService(catRepo, txRepo)
+	authSvc := service.NewAuthService(userRepo, catSvc)
 	txSvc := service.NewTransactionService(txRepo)
 	statsSvc := service.NewStatsService(txRepo)
 

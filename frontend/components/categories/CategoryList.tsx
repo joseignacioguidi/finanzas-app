@@ -1,12 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import * as LucideIcons from 'lucide-react'
 import { Pencil, Trash2, Plus } from 'lucide-react'
 import { getCategories, deleteCategory } from '@/lib/api'
 import type { Category } from '@/lib/types'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import CategoryForm from './CategoryForm'
+
+function CategoryIcon({ name, color }: { name: string; color: string }) {
+  const Icon = (LucideIcons as Record<string, any>)[name]
+  if (!Icon) return <span className="w-3 h-3 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+  return <Icon size={15} style={{ color }} className="shrink-0" />
+}
 
 export default function CategoryList() {
   const [categories, setCategories] = useState<Category[]>([])
@@ -70,9 +77,11 @@ export default function CategoryList() {
             className="flex items-center gap-3 px-4 py-3.5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-surface)] hover:border-[var(--color-border-strong)] transition-colors group"
           >
             <span
-              className="w-3 h-3 shrink-0 rounded-full"
-              style={{ backgroundColor: cat.color }}
-            />
+              className="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: `${cat.color}20` }}
+            >
+              <CategoryIcon name={cat.icon} color={cat.color} />
+            </span>
             <span className="flex-1 text-sm font-medium text-[var(--color-text-primary)] truncate">
               {cat.name}
             </span>

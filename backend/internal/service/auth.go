@@ -14,10 +14,11 @@ import (
 
 type AuthService struct {
 	userRepo repository.UserRepository
+	catSvc   *CategoryService
 }
 
-func NewAuthService(userRepo repository.UserRepository) *AuthService {
-	return &AuthService{userRepo: userRepo}
+func NewAuthService(userRepo repository.UserRepository, catSvc *CategoryService) *AuthService {
+	return &AuthService{userRepo: userRepo, catSvc: catSvc}
 }
 
 type RegisterInput struct {
@@ -44,6 +45,8 @@ func (s *AuthService) Register(ctx context.Context, input RegisterInput) (*model
 	if err := s.userRepo.Create(ctx, user); err != nil {
 		return nil, err
 	}
+
+	s.catSvc.SeedDefaultCategories(ctx, user.ID)
 
 	return user, nil
 }

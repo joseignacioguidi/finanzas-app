@@ -33,6 +33,7 @@ type TransactionRepository interface {
 	Create(ctx context.Context, tx *model.Transaction) error
 	Update(ctx context.Context, tx *model.Transaction) error
 	Delete(ctx context.Context, id uuid.UUID) error
+	CountByCategory(ctx context.Context, categoryID uuid.UUID) (int64, error)
 	MonthlyStats(ctx context.Context, userID uuid.UUID) ([]MonthlyStatRow, error)
 	CategoryStats(ctx context.Context, userID uuid.UUID) ([]CategoryStatRow, error)
 }
@@ -83,6 +84,12 @@ func (r *transactionRepo) Update(ctx context.Context, tx *model.Transaction) err
 
 func (r *transactionRepo) Delete(ctx context.Context, id uuid.UUID) error {
 	return r.db.WithContext(ctx).Delete(&model.Transaction{}, "id = ?", id).Error
+}
+
+func (r *transactionRepo) CountByCategory(ctx context.Context, categoryID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&model.Transaction{}).Where("category_id = ?", categoryID).Count(&count).Error
+	return count, err
 }
 
 func (r *transactionRepo) MonthlyStats(ctx context.Context, userID uuid.UUID) ([]MonthlyStatRow, error) {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import * as LucideIcons from 'lucide-react'
 import { createCategory, updateCategory } from '@/lib/api'
 import type { Category, CategoryInput } from '@/lib/types'
 import Button from '@/components/ui/Button'
@@ -12,6 +13,23 @@ const PRESET_COLORS = [
   '#F472B6', '#818CF8', '#34D399', '#FBBF24',
 ]
 
+const ICON_OPTIONS = [
+  'Utensils', 'Pizza', 'Coffee', 'ShoppingCart', 'ShoppingBag',
+  'Car', 'Bus', 'Bike', 'Plane', 'Train',
+  'Home', 'Building2', 'Landmark', 'Wrench', 'Zap',
+  'HeartPulse', 'Pill', 'Stethoscope', 'Dumbbell', 'Baby',
+  'Film', 'Music', 'Gamepad2', 'BookOpen', 'GraduationCap',
+  'Smartphone', 'Shirt', 'Dog', 'Gift', 'Globe',
+  'TrendingUp', 'PiggyBank', 'Banknote', 'CreditCard', 'Briefcase',
+  'Droplets', 'Wifi', 'Sun', 'Star', 'Tag',
+]
+
+function LucideIcon({ name, size = 16, className }: { name: string; size?: number; className?: string }) {
+  const Icon = (LucideIcons as Record<string, any>)[name]
+  if (!Icon) return null
+  return <Icon size={size} className={className} />
+}
+
 interface CategoryFormProps {
   initial?: Category
   onSuccess: () => void
@@ -21,6 +39,7 @@ interface CategoryFormProps {
 export default function CategoryForm({ initial, onSuccess, onCancel }: CategoryFormProps) {
   const [name, setName] = useState(initial?.name ?? '')
   const [color, setColor] = useState(initial?.color ?? PRESET_COLORS[0])
+  const [icon, setIcon] = useState(initial?.icon ?? '')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -31,7 +50,7 @@ export default function CategoryForm({ initial, onSuccess, onCancel }: CategoryF
 
     setLoading(true)
     try {
-      const input: CategoryInput = { name: name.trim(), color }
+      const input: CategoryInput = { name: name.trim(), color, icon: icon || undefined }
       if (initial) {
         await updateCategory(initial.id, input)
       } else {
@@ -57,6 +76,7 @@ export default function CategoryForm({ initial, onSuccess, onCancel }: CategoryF
         autoFocus
       />
 
+      {/* Color */}
       <div className="flex flex-col gap-2">
         <label className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">
           Color
@@ -87,6 +107,53 @@ export default function CategoryForm({ initial, onSuccess, onCancel }: CategoryF
           <span className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
           <span className="text-xs font-mono text-[var(--color-text-muted)]">{color}</span>
         </div>
+      </div>
+
+      {/* Ícono */}
+      <div className="flex flex-col gap-2">
+        <label className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">
+          Ícono
+        </label>
+        <div className="grid grid-cols-8 gap-1.5 max-h-40 overflow-y-auto pr-1">
+          {/* opción "ninguno" */}
+          <button
+            type="button"
+            onClick={() => setIcon('')}
+            title="Sin ícono"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-xs transition-colors"
+            style={{
+              backgroundColor: icon === '' ? `${color}30` : 'var(--color-bg-overlay)',
+              outline: icon === '' ? `2px solid ${color}` : 'none',
+              outlineOffset: 1,
+              color: 'var(--color-text-muted)',
+            }}
+          >
+            —
+          </button>
+          {ICON_OPTIONS.map(iconName => (
+            <button
+              key={iconName}
+              type="button"
+              onClick={() => setIcon(iconName)}
+              title={iconName}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              style={{
+                backgroundColor: icon === iconName ? `${color}30` : 'var(--color-bg-overlay)',
+                outline: icon === iconName ? `2px solid ${color}` : 'none',
+                outlineOffset: 1,
+                color: icon === iconName ? color : 'var(--color-text-muted)',
+              }}
+            >
+              <LucideIcon name={iconName} size={15} />
+            </button>
+          ))}
+        </div>
+        {icon && (
+          <div className="flex items-center gap-2 mt-0.5">
+            <span style={{ color }}><LucideIcon name={icon} size={14} /></span>
+            <span className="text-xs text-[var(--color-text-muted)]">{icon}</span>
+          </div>
+        )}
       </div>
 
       {error && (

@@ -51,7 +51,7 @@ const quickActions = [
   { label: 'Agregar gasto', href: '/transactions/new?type=expense', iconBg: '#e0f2fe', iconColor: '#0284c7' },
   { label: 'Agregar ingreso', href: '/transactions/new?type=income', iconBg: '#dcfce7', iconColor: '#16a34a' },
   { label: 'Ver historial', href: '/transactions', iconBg: '#fef9c3', iconColor: '#ca8a04' },
-  { label: 'Reportes', href: '/transactions', iconBg: '#f3e8ff', iconColor: '#9333ea' },
+  { label: 'Nueva categoría', href: '/categories', iconBg: '#f3e8ff', iconColor: '#9333ea' },
 ]
 
 export default function DashboardPage() {
@@ -63,18 +63,15 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    Promise.all([
+    Promise.allSettled([
       getTransactions({ month: currentMonth() }),
       getMonthlyStats(),
       getCategoryStats(),
-    ])
-      .then(([txs, mon, cats]) => {
-        setTransactions(txs)
-        setMonthly(mon)
-        setCatStats(cats)
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
+    ]).then(([txsResult, monResult, catsResult]) => {
+      if (txsResult.status === 'fulfilled') setTransactions(txsResult.value)
+      if (monResult.status === 'fulfilled') setMonthly(monResult.value)
+      if (catsResult.status === 'fulfilled') setCatStats(catsResult.value)
+    }).finally(() => setLoading(false))
   }, [])
 
   const income = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0)
