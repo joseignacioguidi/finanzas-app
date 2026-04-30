@@ -9,6 +9,15 @@ import type {
   RecurringTransaction,
   RecurringTransactionInput,
   APIError,
+  ReportSummary,
+  ReportByCategoryRow,
+  ReportMonthlyRow,
+  TopTransactionsResult,
+  SavingsResult,
+  TrendResult,
+  GoalResult,
+  GoalInput,
+  EmergencyFundResult,
 } from '@/lib/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
@@ -147,4 +156,75 @@ export async function getMonthlyStats(): Promise<MonthlyStatRow[]> {
 export async function getCategoryStats(): Promise<CategoryStatRow[]> {
   const data = await apiFetch<CategoryStatRow[] | null>('/api/stats/categories')
   return data ?? []
+}
+
+// ── Reports ───────────────────────────────────────────────────────────────────
+
+export async function getReportSummary(from: string, to: string): Promise<ReportSummary> {
+  return apiFetch<ReportSummary>(`/api/reports/summary?from=${from}&to=${to}`)
+}
+
+export async function getReportByCategory(from: string, to: string): Promise<ReportByCategoryRow[]> {
+  const data = await apiFetch<ReportByCategoryRow[] | null>(`/api/reports/by-category?from=${from}&to=${to}`)
+  return data ?? []
+}
+
+export async function getReportMonthly(year?: number): Promise<ReportMonthlyRow[]> {
+  const qs = year ? `?year=${year}` : ''
+  const data = await apiFetch<ReportMonthlyRow[] | null>(`/api/reports/monthly${qs}`)
+  return data ?? []
+}
+
+export async function getTopTransactions(from: string, to: string, limit = 10): Promise<TopTransactionsResult> {
+  return apiFetch<TopTransactionsResult>(`/api/reports/top-transactions?from=${from}&to=${to}&limit=${limit}`)
+}
+
+export async function exportTransactions(from: string, to: string): Promise<Blob> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
+  const response = await fetch(`${API_URL}/api/reports/export?from=${from}&to=${to}`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  if (!response.ok) throw new Error('Error al exportar')
+  return response.blob()
+}
+
+// ── Analysis ──────────────────────────────────────────────────────────────────
+
+export async function getAnalysisSavings(months = 12): Promise<SavingsResult> {
+  return apiFetch<SavingsResult>(`/api/analysis/savings?months=${months}`)
+}
+
+export async function getAnalysisTrends(months = 3): Promise<TrendResult[]> {
+  const data = await apiFetch<TrendResult[] | null>(`/api/analysis/trends?months=${months}`)
+  return data ?? []
+}
+
+// ── Goals ─────────────────────────────────────────────────────────────────────
+
+export async function getGoals(): Promise<GoalResult[]> {
+  const data = await apiFetch<GoalResult[] | null>('/api/goals')
+  return data ?? []
+}
+
+export async function createGoal(input: GoalInput): Promise<GoalResult> {
+  return apiFetch<GoalResult>('/api/goals', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export async function updateGoal(id: string, input: GoalInput): Promise<GoalResult> {
+  return apiFetch<GoalResult>(`/api/goals/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  })
+}
+
+export async function deleteGoal(id: string): Promise<void> {
+  return apiFetch<void>(`/api/goals/${id}`, { method: 'DELETE' })
+}
+
+export async function getEmergencyFund(): Promise<EmergencyFundResult> {
+  return apiFetch<EmergencyFundResult>('/api/goals/emergency-fund')
 }

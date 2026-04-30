@@ -5,6 +5,7 @@ import * as LucideIcons from 'lucide-react'
 import { Pencil, Trash2, Plus } from 'lucide-react'
 import { getCategories, deleteCategory } from '@/lib/api'
 import type { Category } from '@/lib/types'
+import { CATEGORY_TYPE_LABELS, CATEGORY_TYPE_COLORS } from '@/lib/types'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import CategoryForm from './CategoryForm'
@@ -84,6 +85,15 @@ export default function CategoryList() {
             </span>
             <span className="flex-1 text-sm font-medium text-[var(--color-text-primary)] truncate">
               {cat.name}
+            </span>
+            <span
+              className="text-[10px] font-medium px-1.5 py-0.5 rounded-full shrink-0"
+              style={{
+                color: CATEGORY_TYPE_COLORS[cat.type] ?? '#6b7280',
+                backgroundColor: `${CATEGORY_TYPE_COLORS[cat.type] ?? '#6b7280'}18`,
+              }}
+            >
+              {CATEGORY_TYPE_LABELS[cat.type] ?? cat.type}
             </span>
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               <button

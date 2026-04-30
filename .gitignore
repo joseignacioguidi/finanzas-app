@@ -1,1 +1,3 @@
 bruno/environments/local.bru
+backend/.env
+frontend/.env.local

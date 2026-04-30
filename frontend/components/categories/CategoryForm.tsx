@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import * as LucideIcons from 'lucide-react'
 import { createCategory, updateCategory } from '@/lib/api'
-import type { Category, CategoryInput } from '@/lib/types'
+import type { Category, CategoryInput, CategoryType } from '@/lib/types'
+import { CATEGORY_TYPE_LABELS, CATEGORY_TYPE_COLORS } from '@/lib/types'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 
@@ -36,12 +37,16 @@ interface CategoryFormProps {
   onCancel?: () => void
 }
 
+const CATEGORY_TYPES: CategoryType[] = ['income', 'expense', 'savings', 'investment']
+
 export default function CategoryForm({ initial, onSuccess, onCancel }: CategoryFormProps) {
   const [name, setName] = useState(initial?.name ?? '')
   const [color, setColor] = useState(initial?.color ?? PRESET_COLORS[0])
   const [icon, setIcon] = useState(initial?.icon ?? '')
+  const [type, setType] = useState<CategoryType>(initial?.type ?? 'expense')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const typeChanged = !!initial && initial.type !== type
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -50,7 +55,7 @@ export default function CategoryForm({ initial, onSuccess, onCancel }: CategoryF
 
     setLoading(true)
     try {
-      const input: CategoryInput = { name: name.trim(), color, icon: icon || undefined }
+      const input: CategoryInput = { name: name.trim(), color, icon: icon || undefined, type }
       if (initial) {
         await updateCategory(initial.id, input)
       } else {
@@ -66,6 +71,39 @@ export default function CategoryForm({ initial, onSuccess, onCancel }: CategoryF
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {/* Tipo */}
+      <div className="flex flex-col gap-2">
+        <label className="text-xs font-medium text-[var(--color-text-secondary)] uppercase tracking-wider">
+          Tipo
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          {CATEGORY_TYPES.map(t => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setType(t)}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors border"
+              style={{
+                borderColor: type === t ? CATEGORY_TYPE_COLORS[t] : 'var(--color-border)',
+                backgroundColor: type === t ? `${CATEGORY_TYPE_COLORS[t]}15` : 'var(--color-bg-overlay)',
+                color: type === t ? CATEGORY_TYPE_COLORS[t] : 'var(--color-text-muted)',
+              }}
+            >
+              <span
+                className="w-2 h-2 rounded-full shrink-0"
+                style={{ backgroundColor: type === t ? CATEGORY_TYPE_COLORS[t] : 'var(--color-border)' }}
+              />
+              {CATEGORY_TYPE_LABELS[t]}
+            </button>
+          ))}
+        </div>
+        {typeChanged && (
+          <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-md px-3 py-2 mt-1">
+            Este cambio aplica a nuevos reportes. El historial anterior no se recalcula.
+          </p>
+        )}
+      </div>
+
       <Input
         label="Nombre"
         value={name}

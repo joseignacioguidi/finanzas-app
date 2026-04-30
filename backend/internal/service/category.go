@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/joseguidi/expense-tracker/backend/internal/model"
@@ -24,6 +25,7 @@ type CategoryInput struct {
 	Name  string `json:"name"  binding:"required"`
 	Color string `json:"color" binding:"required,len=7"`
 	Icon  string `json:"icon"  binding:"omitempty,max=50"`
+	Type  string `json:"type"  binding:"required,oneof=income expense savings investment"`
 }
 
 func (s *CategoryService) GetAll(ctx context.Context, userID uuid.UUID) ([]model.Category, error) {
@@ -36,6 +38,7 @@ func (s *CategoryService) Create(ctx context.Context, userID uuid.UUID, input Ca
 		Name:   input.Name,
 		Color:  input.Color,
 		Icon:   input.Icon,
+		Type:   model.CategoryType(input.Type),
 	}
 	if err := s.repo.Create(ctx, cat); err != nil {
 		return nil, err
@@ -51,9 +54,15 @@ func (s *CategoryService) Update(ctx context.Context, userID uuid.UUID, id uuid.
 	if cat.UserID != userID {
 		return nil, errors.New("no autorizado")
 	}
+	newType := model.CategoryType(input.Type)
+	if cat.Type != newType {
+		now := time.Now()
+		cat.TypeChangedAt = &now
+	}
 	cat.Name = input.Name
 	cat.Color = input.Color
 	cat.Icon = input.Icon
+	cat.Type = newType
 	if err := s.repo.Update(ctx, cat); err != nil {
 		return nil, err
 	}
@@ -79,20 +88,23 @@ func (s *CategoryService) Delete(ctx context.Context, userID uuid.UUID, id uuid.
 }
 
 var defaultCategories = []CategoryInput{
-	{Name: "Delivery", Color: "#F97316", Icon: "Bike"},
-	{Name: "Salud/Médicos", Color: "#EF4444", Icon: "Stethoscope"},
-	{Name: "Regalos", Color: "#EC4899", Icon: "Gift"},
-	{Name: "Mascotas", Color: "#84CC16", Icon: "PawPrint"},
-	{Name: "Impuestos", Color: "#6B7280", Icon: "Receipt"},
-	{Name: "Ropa", Color: "#A855F7", Icon: "Shirt"},
-	{Name: "Cuotas", Color: "#3B82F6", Icon: "CreditCard"},
-	{Name: "Apuestas", Color: "#F59E0B", Icon: "Dices"},
-	{Name: "Inversiones", Color: "#10B981", Icon: "TrendingUp"},
-	{Name: "Entretenimiento", Color: "#8B5CF6", Icon: "Tv"},
-	{Name: "Comida/Supermercado", Color: "#F5A623", Icon: "ShoppingCart"},
-	{Name: "Salidas", Color: "#06B6D4", Icon: "Music"},
-	{Name: "Gastos Personales", Color: "#64748B", Icon: "User"},
-	{Name: "Deportes", Color: "#22C55E", Icon: "Dumbbell"},
+	{Name: "Sueldo", Color: "#16A34A", Icon: "Banknote", Type: "income"},
+	{Name: "Ingresos Varios", Color: "#059669", Icon: "DollarSign", Type: "income"},
+	{Name: "Delivery", Color: "#F97316", Icon: "Bike", Type: "expense"},
+	{Name: "Salud/Médicos", Color: "#EF4444", Icon: "Stethoscope", Type: "expense"},
+	{Name: "Regalos", Color: "#EC4899", Icon: "Gift", Type: "expense"},
+	{Name: "Mascotas", Color: "#84CC16", Icon: "PawPrint", Type: "expense"},
+	{Name: "Impuestos", Color: "#6B7280", Icon: "Receipt", Type: "expense"},
+	{Name: "Ropa", Color: "#A855F7", Icon: "Shirt", Type: "expense"},
+	{Name: "Cuotas", Color: "#3B82F6", Icon: "CreditCard", Type: "expense"},
+	{Name: "Apuestas", Color: "#F59E0B", Icon: "Dices", Type: "expense"},
+	{Name: "Inversiones", Color: "#10B981", Icon: "TrendingUp", Type: "investment"},
+	{Name: "Entretenimiento", Color: "#8B5CF6", Icon: "Tv", Type: "expense"},
+	{Name: "Comida/Supermercado", Color: "#F5A623", Icon: "ShoppingCart", Type: "expense"},
+	{Name: "Salidas", Color: "#06B6D4", Icon: "Music", Type: "expense"},
+	{Name: "Gastos Personales", Color: "#64748B", Icon: "User", Type: "expense"},
+	{Name: "Deportes", Color: "#22C55E", Icon: "Dumbbell", Type: "expense"},
+	{Name: "Fondo de Ahorro", Color: "#0EA5E9", Icon: "PiggyBank", Type: "savings"},
 }
 
 func (s *CategoryService) SeedDefaultCategories(ctx context.Context, userID uuid.UUID) {

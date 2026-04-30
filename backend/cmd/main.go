@@ -25,6 +25,8 @@ func main() {
 	catRepo := repository.NewCategoryRepository(database)
 	txRepo := repository.NewTransactionRepository(database)
 	recurringRepo := repository.NewRecurringTransactionRepository(database)
+	reportsRepo := repository.NewReportsRepository(database)
+	goalRepo := repository.NewGoalRepository(database)
 
 	// Services
 	catSvc := service.NewCategoryService(catRepo, txRepo)
@@ -32,6 +34,8 @@ func main() {
 	txSvc := service.NewTransactionService(txRepo)
 	statsSvc := service.NewStatsService(txRepo)
 	recurringSvc := service.NewRecurringTransactionService(recurringRepo, txRepo)
+	reportsSvc := service.NewReportsService(reportsRepo)
+	goalsSvc := service.NewGoalsService(goalRepo, reportsRepo)
 
 	// Handlers
 	authH := handler.NewAuthHandler(authSvc)
@@ -39,11 +43,18 @@ func main() {
 	txH := handler.NewTransactionHandler(txSvc)
 	statsH := handler.NewStatsHandler(statsSvc)
 	recurringH := handler.NewRecurringTransactionHandler(recurringSvc)
+	reportsH := handler.NewReportsHandler(reportsSvc)
+	goalsH := handler.NewGoalsHandler(goalsSvc)
 
 	r := gin.Default()
 
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:3000"
+	}
+
 	r.Use(func(c *gin.Context) {
-		c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
+		c.Header("Access-Control-Allow-Origin", frontendURL)
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
 		if c.Request.Method == "OPTIONS" {
@@ -86,6 +97,30 @@ func main() {
 			{
 				stats.GET("/monthly", statsH.Monthly)
 				stats.GET("/categories", statsH.Categories)
+			}
+
+			reports := protected.Group("/reports")
+			{
+				reports.GET("/summary", reportsH.Summary)
+				reports.GET("/by-category", reportsH.ByCategory)
+				reports.GET("/monthly", reportsH.Monthly)
+				reports.GET("/top-transactions", reportsH.TopTransactions)
+				reports.GET("/export", reportsH.Export)
+			}
+
+			analysis := protected.Group("/analysis")
+			{
+				analysis.GET("/savings", reportsH.Savings)
+				analysis.GET("/trends", reportsH.Trends)
+			}
+
+			goals := protected.Group("/goals")
+			{
+				goals.GET("/emergency-fund", goalsH.EmergencyFund)
+				goals.GET("", goalsH.GetAll)
+				goals.POST("", goalsH.Create)
+				goals.PUT("/:id", goalsH.Update)
+				goals.DELETE("/:id", goalsH.Delete)
 			}
 		}
 	}
