@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, ArrowLeftRight, CalendarDays, User, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, ArrowLeftRight, CalendarDays, Tag, BarChart2, User, Settings, LogOut } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 
 const sections = [
@@ -12,6 +12,8 @@ const sections = [
       { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, activeSegment: 'dashboard' },
       { href: '/transactions', label: 'Transacciones', icon: ArrowLeftRight, activeSegment: 'transactions' },
       { href: '/calendar', label: 'Calendario', icon: CalendarDays, activeSegment: 'calendar' },
+      { href: '/categories', label: 'Categorías', icon: Tag, activeSegment: 'categories' },
+      { href: '/reports', label: 'Reportes', icon: BarChart2, activeSegment: 'reports' },
     ],
   },
   {
