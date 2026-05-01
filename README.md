@@ -1,227 +1,253 @@
-# Expense Tracker
+# Finanzas App
 
-Aplicación web para el control de gastos personales. Permite registrar ingresos y egresos, categorizarlos, y visualizar comparativas mensuales.
+App de control de gastos personales. Monorepo con backend en Go + Gin y frontend en Next.js.
 
 ---
 
 ## Stack tecnológico
 
-| Capa | Tecnología | Deploy |
+### Backend
+| Tecnología | Versión | Uso |
 |---|---|---|
-| Frontend | Next.js (App Router) + TypeScript | Vercel |
-| Backend | Go + Gin | Railway |
-| Base de datos | PostgreSQL | Neon o Supabase (solo DB) |
-| Storage de imágenes | Supabase Storage | — |
-| ORM | GORM | — |
-| Gráficos | Recharts | — |
+| Go | 1.23 | Lenguaje principal |
+| Gin | v1.10.0 | Framework HTTP |
+| GORM | v1.25.12 | ORM |
+| PostgreSQL | 16 | Base de datos |
+| golang-jwt/jwt | v5.3.1 | Autenticación JWT |
+| google/uuid | v1.6.0 | Generación de IDs |
+| godotenv | v1.5.1 | Variables de entorno |
 
----
-
-## Estructura del repositorio
-
-```
-expense-tracker/
-├── .claude/
-│   ├── project-context.md
-│   ├── backend-context.md
-│   └── frontend-context.md
-├── docs/
-│   ├── architecture.md
-│   ├── api.md
-│   └── database.md
-├── backend/              ← Go + Gin
-├── frontend/             ← Next.js
-└── README.md
-```
-
----
-
-## Estructura del backend (Go + Gin)
-
-```
-backend/
-├── cmd/
-│   └── main.go
-├── internal/
-│   ├── handler/
-│   │   ├── transaction.go
-│   │   ├── category.go
-│   │   └── auth.go
-│   ├── service/
-│   │   ├── transaction.go
-│   │   ├── category.go
-│   │   └── auth.go
-│   ├── repository/
-│   │   ├── transaction.go
-│   │   └── category.go
-│   └── model/
-│       ├── transaction.go
-│       ├── category.go
-│       └── user.go
-├── db/
-│   └── migrations/
-├── go.mod
-└── .env
-```
-
-Patrón de capas: `handler → service → repository`. El handler maneja HTTP, el service contiene la lógica de negocio, el repository habla con la base de datos.
-
----
-
-## Estructura del frontend (Next.js)
-
-```
-frontend/
-├── app/
-│   ├── dashboard/
-│   │   └── page.tsx       ← stat cards + gráfico + acciones rápidas
-│   ├── transactions/
-│   │   ├── page.tsx       ← listado con filter pills + tabla
-│   │   └── new/page.tsx   ← formulario 2 cols (form + preview en vivo)
-│   ├── profile/
-│   │   └── page.tsx       ← perfil, stats y ajustes (nueva pantalla)
-│   ├── categories/
-│   │   └── page.tsx
-│   ├── layout.tsx
-│   └── page.tsx           ← login
-├── components/
-│   ├── layout/
-│   │   ├── AppShell.tsx   ← shell con topbar + sidebar + bottom nav
-│   │   ├── Sidebar.tsx    ← sidebar oscura 200px (desktop)
-│   │   └── BottomNav.tsx  ← tabs de navegación (mobile)
-│   ├── transactions/
-│   │   ├── TransactionForm.tsx
-│   │   └── TransactionList.tsx
-│   ├── charts/
-│   │   ├── MonthlyBar.tsx
-│   │   └── CategoryDonut.tsx
-│   └── ui/
-├── lib/
-│   ├── api.ts             ← fetch al backend
-│   └── types.ts
-└── next.config.ts
-```
-
----
-
-## Endpoints de la API
-
-| Método | Endpoint | Descripción |
+### Frontend
+| Tecnología | Versión | Uso |
 |---|---|---|
-| POST | `/api/auth/register` | Registro de usuario |
-| POST | `/api/auth/login` | Login, devuelve JWT |
-| GET | `/api/transactions` | Listado con filtros (mes, tipo, categoría) |
-| POST | `/api/transactions` | Crear transacción manual |
-| PUT | `/api/transactions/:id` | Editar transacción |
-| DELETE | `/api/transactions/:id` | Eliminar transacción |
-| GET | `/api/categories` | Listar categorías del usuario |
-| POST | `/api/categories` | Crear categoría |
-| PUT | `/api/categories/:id` | Editar categoría |
-| DELETE | `/api/categories/:id` | Eliminar categoría |
-| GET | `/api/stats/monthly` | Datos para gráfico de barras mensual |
-| GET | `/api/stats/categories` | Datos para gráfico de torta |
+| Next.js | 16.2.4 | Framework React (App Router) |
+| React | 19.2.4 | UI |
+| TypeScript | v5 | Tipado estático |
+| Tailwind CSS | v4 | Estilos |
+| Recharts | v3.8.1 | Gráficos |
+| Lucide React | v1.11.0 | Iconos |
+
+### Infraestructura
+- **Base de datos:** PostgreSQL 16 (Docker)
+- **ORM Migrations:** AutoMigrate de GORM
 
 ---
 
-## Funcionalidades
+## Arquitectura
 
-### MVP
+```
+finanzas-app/
+├── backend/
+│   ├── cmd/main.go              # Entry point y setup de rutas
+│   └── internal/
+│       ├── handler/             # Capa HTTP (recibe requests, devuelve responses)
+│       ├── service/             # Lógica de negocio
+│       ├── repository/          # Acceso a datos (GORM)
+│       ├── model/               # Modelos de base de datos
+│       ├── middleware/          # JWT auth middleware
+│       └── db/                  # Conexión y configuración de GORM
+├── frontend/
+│   ├── app/                     # Páginas (Next.js App Router)
+│   ├── components/              # Componentes React reutilizables
+│   └── lib/                     # API client, tipos, contexto de auth
+├── bruno/                       # Colección de requests para testing
+├── docs/                        # Wireframes y archivos de ejemplo
+└── docker-compose.yml
+```
 
-**Autenticación**
-- Registro e inicio de sesión con email y contraseña
-- Sesiones con JWT. Cada usuario ve solo sus propios datos
-- Logout y redirección automática si no está autenticado
-
-**Transacciones**
-- Crear transacción manual: tipo (ingreso/egreso), monto, moneda, categoría, fecha, descripción opcional
-- Editar y eliminar transacciones
-- Listado filtrable por mes, tipo y categoría
-- Soporte multi-moneda (ARS, USD, etc.). Los totales se muestran separados por moneda
-
-**Categorías personalizables**
-- Cada usuario tiene sus propias categorías con nombre y color
-- Categorías precargadas por defecto al registrarse: alimentación, transporte, salud, vivienda, entretenimiento
-- ABM completo. No se puede eliminar una categoría que tenga transacciones asociadas
-
-**Dashboard**
-- Resumen del mes: total ingresos, total egresos y balance (separado por moneda)
-- Gráfico de barras: comparativa ingresos vs gastos de los últimos 6 meses
-- Panel lateral: últimos movimientos + acciones rápidas
-- En mobile: header oscuro con saldo destacado, barras por categoría y grilla de acciones
-
-**Perfil**
-- Avatar con iniciales, estadísticas (cantidad de transacciones y meses activo)
-- Ajustes: moneda, notificaciones (toggle), tema oscuro (toggle), inicio del mes
-- Sección cuenta: cambiar contraseña, exportar datos, eliminar cuenta
-
-### V2 (segunda iteración)
-- Exportar transacciones a CSV
-- Conversión de monedas con tipo de cambio manual o automático
-- Presupuesto mensual por categoría con barra de progreso
-
-### V3 (futuro)
-- Carga por foto de ticket con OCR via Claude API
-- Categorización automática basada en historial del usuario
+El backend sigue el patrón **Handler → Service → Repository** en todas las rutas.
 
 ---
 
-## Diseño visual
+## Funcionalidades implementadas
 
-**Paleta base** (aplicada en `frontend/app/globals.css`):
+### Autenticación
+- Registro de usuario con email y contraseña
+- Login con generación de JWT
+- Rutas protegidas por middleware JWT
+- Gestión de sesión con Context API en el frontend
 
-| Token | Valor | Uso |
-|---|---|---|
-| `--color-brand` | `#1a1a2e` | Primario — sidebar, CTAs, pills activos |
-| `--color-bg-base` | `#f7f7f2` | Fondo general (crema) |
-| `--color-bg-surface` | `#ffffff` | Cards y paneles |
-| `--color-income` | `#16a34a` | Montos de ingreso |
-| `--color-expense` | `#dc2626` | Montos de egreso |
+### Transacciones
+- Crear, editar y eliminar transacciones (ingresos y gastos)
+- Filtrado por mes, año, tipo, categoría y estado (confirmada/pendiente)
+- Importar transacciones desde CSV
+- Exportar transacciones a CSV con filtros opcionales
+- Soporte para transacciones recurrentes (por día del mes)
 
-**Colores de categorías** (referencia para crear categorías por defecto):
+### Categorías
+- Crear, editar y eliminar categorías
+- Tipos: `income`, `expense`, `savings`, `investment`
+- Personalización con color e icono
 
-| Categoría | Color |
-|---|---|
-| Comida / Alimentación | `#f87171` |
-| Transporte | `#fb923c` |
-| Servicios | `#60a5fa` |
-| Salud | `#34d399` |
-| Ocio | `#a78bfa` |
+### Dashboard y Estadísticas
+- Selector de mes para visualizar datos del período
+- Tarjetas de resumen: ingresos, gastos, balance
+- Gráfico de barras: ingresos vs. gastos de los últimos 6 meses
+- Gráfico de donut: distribución de gastos por categoría
+- Últimas 4 transacciones del mes
 
-**Layout**:
-- Desktop: sidebar fija `200px` oscura + topbar `50px` + contenido en `#f7f7f2`
-- Mobile: sin sidebar, bottom nav con 3 tabs (Inicio / Movim. / Perfil)
-- Breakpoint: `md` (768px)
+### Reportes
+- Resumen por rango de fechas
+- Desglose de gastos/ingresos por categoría
+- Resumen mensual anual
+- Top transacciones del período
 
-Los wireframes de referencia están en `docs/wireframes/`.
+### Análisis financiero
+- Análisis de ahorro con proyecciones a 6 y 12 meses
+- Análisis de tendencias de gasto por categoría
+- Cálculo de fondo de emergencia recomendado
+
+### Metas financieras
+- Crear, editar y eliminar metas con monto objetivo y fecha límite
 
 ---
 
-## Decisiones técnicas relevantes
+## API — Endpoints
 
-- **GORM sobre SQLC para el MVP**: permite avanzar rápido mientras se aprende Go. Migrar a SQLC es posible una vez que el proyecto esté estable.
-- **Multi-moneda sin conversión automática en el MVP**: cada transacción guarda su moneda. Los totales se muestran separados para evitar depender de un tipo de cambio.
-- **Categorías por usuario con defaults**: al registrarse, el backend crea automáticamente un set de categorías base para evitar pantalla vacía.
-- **Monorepo único**: frontend y backend en el mismo repositorio. Vercel y Railway apuntan cada uno a su subdirectorio.
-- **Storage de imágenes en Supabase**: el frontend sube la imagen directamente a Supabase Storage y envía la URL al backend. Go nunca maneja el archivo binario.
-- **CORS**: Gin necesita middleware CORS configurado para aceptar requests desde el dominio de Vercel.
+Todos los endpoints excepto `/health` y `/api/auth/*` requieren header `Authorization: Bearer <token>`.
+
+### Auth
+```
+POST /api/auth/register
+POST /api/auth/login
+```
+
+### Transacciones
+```
+GET    /api/transactions          ?month=&year=&type=&category=&status=
+POST   /api/transactions
+POST   /api/transactions/import   (multipart/form-data, campo: file)
+PUT    /api/transactions/:id
+DELETE /api/transactions/:id
+```
+
+### Transacciones recurrentes
+```
+GET    /api/recurring
+POST   /api/recurring
+DELETE /api/recurring/:id        (desactiva, no elimina)
+```
+
+### Categorías
+```
+GET    /api/categories
+POST   /api/categories
+PUT    /api/categories/:id
+DELETE /api/categories/:id
+```
+
+### Estadísticas
+```
+GET /api/stats/monthly            Ingresos/gastos últimos 6 meses
+GET /api/stats/categories         Gastos por categoría
+```
+
+### Reportes
+```
+GET /api/reports/summary          ?from=YYYY-MM-DD&to=YYYY-MM-DD
+GET /api/reports/by-category      ?from=&to=
+GET /api/reports/monthly          ?year=YYYY
+GET /api/reports/top-transactions ?from=&to=&limit=10
+GET /api/reports/export           ?from=&to=
+```
+
+### Análisis
+```
+GET /api/analysis/savings         ?months=12
+GET /api/analysis/trends          ?months=3
+```
+
+### Metas
+```
+GET    /api/goals
+POST   /api/goals
+PUT    /api/goals/:id
+DELETE /api/goals/:id
+GET    /api/goals/emergency-fund
+```
+
+### Health
+```
+GET /health
+```
+
+---
+
+## Modelo de datos
+
+```
+Users
+  id (UUID) · email · password_hash · created_at · updated_at
+
+Categories
+  id (UUID) · user_id · name · color · icon · type · created_at · updated_at
+
+Transactions
+  id (UUID) · user_id · category_id · type · amount · currency
+  description · date · status · recurring_id · created_at · updated_at
+
+RecurringTransactions
+  id (UUID) · user_id · category_id · type · amount · currency
+  description · day_of_month · active · created_at · updated_at
+
+Goals
+  id (UUID) · user_id · name · target_amount · target_date · created_at · updated_at
+```
+
+---
+
+## Setup local
+
+### Requisitos
+- Go 1.23+
+- Node.js 20+
+- Docker y Docker Compose
+
+### 1. Base de datos
+```bash
+docker compose up -d
+```
+Levanta PostgreSQL 16 en el puerto `5462`.
+
+### 2. Backend
+```bash
+cd backend
+cp .env.example .env
+# Editar .env con tus valores
+go run ./cmd/main.go
+```
+Corre en `http://localhost:8080`.
+
+### 3. Frontend
+```bash
+cd frontend
+cp .env.example .env.local
+# NEXT_PUBLIC_API_URL=http://localhost:8080
+npm install
+npm run dev
+```
+Corre en `http://localhost:3000`.
 
 ---
 
 ## Variables de entorno
 
-### backend/.env.example
+### Backend (`.env`)
 ```
 PORT=8080
-DATABASE_URL=postgresql://user:password@host:5432/expense_tracker
-JWT_SECRET=your_secret_here
-ANTHROPIC_API_KEY=your_key_here        # para V3
-SUPABASE_URL=your_supabase_url
-SUPABASE_KEY=your_supabase_key
+DATABASE_URL=postgres://postgres:postgres@localhost:5462/finanzas?sslmode=disable
+JWT_SECRET=cambia-esto-por-un-secreto-largo-y-aleatorio
+FRONTEND_URL=http://localhost:3000
 ```
 
-### frontend/.env.example
+### Frontend (`.env.local`)
 ```
 NEXT_PUBLIC_API_URL=http://localhost:8080
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 ```
+
+---
+
+## Convenciones del proyecto
+- Código en inglés, comentarios y commits en español
+- Backend: patrón Handler → Service → Repository
+- Frontend: componentes en PascalCase, lógica de API centralizada en `lib/api.ts`
