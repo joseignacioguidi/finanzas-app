@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -92,7 +93,19 @@ func (h *ReportsHandler) Export(c *gin.Context) {
 		return
 	}
 
-	rows, err := h.svc.ExportTransactions(c.Request.Context(), userID, from, to)
+	txType := c.Query("type")
+
+	var categoryIDs []uuid.UUID
+	if cats := c.Query("categories"); cats != "" {
+		for _, raw := range strings.Split(cats, ",") {
+			id, err := uuid.Parse(strings.TrimSpace(raw))
+			if err == nil {
+				categoryIDs = append(categoryIDs, id)
+			}
+		}
+	}
+
+	rows, err := h.svc.ExportTransactions(c.Request.Context(), userID, from, to, txType, categoryIDs)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -100,7 +113,7 @@ func (h *ReportsHandler) Export(c *gin.Context) {
 
 	var buf bytes.Buffer
 	w := csv.NewWriter(&buf)
-	_ = w.Write([]string{"ID", "Fecha", "Descripción", "Categoría", "Tipo", "Monto", "Moneda"})
+	_ = w.Write([]string{"ID", "Fecha", "Descripción", "Categoría", "Tipo", "Monto", "Moneda", "Estado"})
 	for _, r := range rows {
 		_ = w.Write([]string{
 			r.ID,
@@ -110,6 +123,7 @@ func (h *ReportsHandler) Export(c *gin.Context) {
 			r.CategoryType,
 			strconv.FormatFloat(r.Amount, 'f', 2, 64),
 			r.Currency,
+			r.Status,
 		})
 	}
 	w.Flush()

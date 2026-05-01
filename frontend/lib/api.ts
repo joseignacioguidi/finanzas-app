@@ -179,10 +179,18 @@ export async function getTopTransactions(from: string, to: string, limit = 10): 
   return apiFetch<TopTransactionsResult>(`/api/reports/top-transactions?from=${from}&to=${to}&limit=${limit}`)
 }
 
-export async function exportTransactions(from: string, to: string): Promise<Blob> {
+export async function exportTransactions(
+  from: string,
+  to: string,
+  type?: string,
+  categories?: string[],
+): Promise<Blob> {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
   const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
-  const response = await fetch(`${API_URL}/api/reports/export?from=${from}&to=${to}`, {
+  const params = new URLSearchParams({ from, to })
+  if (type) params.set('type', type)
+  if (categories && categories.length > 0) params.set('categories', categories.join(','))
+  const response = await fetch(`${API_URL}/api/reports/export?${params.toString()}`, {
     headers: token ? { Authorization: `Bearer ${token}` } : {},
   })
   if (!response.ok) throw new Error('Error al exportar')

@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -47,6 +49,7 @@ type TransactionExportRow struct {
 	CategoryType string  `json:"category_type"`
 	Amount       float64 `json:"amount"`
 	Currency     string  `json:"currency"`
+	Status       string  `json:"status"`
 }
 
 type SavingsMonthRow struct {
@@ -66,7 +69,7 @@ type ReportsRepository interface {
 	ByCategory(ctx context.Context, userID uuid.UUID, from, to string) ([]ReportByCategoryRow, error)
 	Monthly(ctx context.Context, userID uuid.UUID, year int) ([]ReportMonthlyRow, error)
 	TopTransactions(ctx context.Context, userID uuid.UUID, from, to string, limit int) ([]TopTransactionRow, error)
-	ExportTransactions(ctx context.Context, userID uuid.UUID, from, to string) ([]TransactionExportRow, error)
+	ExportTransactions(ctx context.Context, userID uuid.UUID, from, to, txType string, categoryIDs []uuid.UUID) ([]TransactionExportRow, error)
 	SavingsByMonth(ctx context.Context, userID uuid.UUID, fromDate string) ([]SavingsMonthRow, error)
 	TrendPeriod(ctx context.Context, userID uuid.UUID, from, to string) ([]TrendPeriodRow, error)
 	AvgMonthlyExpense(ctx context.Context, userID uuid.UUID, fromDate string, months int) (float64, error)
@@ -162,9 +165,10 @@ func (r *reportsRepo) TopTransactions(ctx context.Context, userID uuid.UUID, fro
 	return rows, err
 }
 
-func (r *reportsRepo) ExportTransactions(ctx context.Context, userID uuid.UUID, from, to string) ([]TransactionExportRow, error) {
+func (r *reportsRepo) ExportTransactions(ctx context.Context, userID uuid.UUID, from, to, txType string, categoryIDs []uuid.UUID) ([]TransactionExportRow, error) {
 	rows := make([]TransactionExportRow, 0)
-	err := r.db.WithContext(ctx).Raw(`
+
+	query := `
 		SELECT
 			t.id::text                       AS id,
 			TO_CHAR(t.date, 'YYYY-MM-DD')   AS date,
@@ -172,14 +176,31 @@ func (r *reportsRepo) ExportTransactions(ctx context.Context, userID uuid.UUID, 
 			c.name                           AS category_name,
 			c.type::text                     AS category_type,
 			t.amount,
-			t.currency
+			t.currency,
+			t.status::text                   AS status
 		FROM transactions t
 		JOIN categories c ON c.id = t.category_id
 		WHERE t.user_id = ?
-		  AND t.date BETWEEN ?::date AND ?::date
-		  AND t.status = 'confirmed'
-		ORDER BY t.date DESC
-	`, userID, from, to).Scan(&rows).Error
+		  AND t.date BETWEEN ?::date AND ?::date`
+
+	args := []interface{}{userID, from, to}
+
+	if txType != "" {
+		query += "\n\t\t  AND t.type = ?"
+		args = append(args, txType)
+	}
+
+	if len(categoryIDs) > 0 {
+		ids := make([]string, len(categoryIDs))
+		for i, id := range categoryIDs {
+			ids[i] = "'" + id.String() + "'"
+		}
+		query += fmt.Sprintf("\n\t\t  AND t.category_id::text IN (%s)", strings.Join(ids, ","))
+	}
+
+	query += "\n\t\tORDER BY t.date DESC"
+
+	err := r.db.WithContext(ctx).Raw(query, args...).Scan(&rows).Error
 	return rows, err
 }
 

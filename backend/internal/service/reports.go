@@ -153,8 +153,8 @@ func (s *ReportsService) TopTransactions(ctx context.Context, userID uuid.UUID, 
 	return result, nil
 }
 
-func (s *ReportsService) ExportTransactions(ctx context.Context, userID uuid.UUID, from, to string) ([]repository.TransactionExportRow, error) {
-	return s.repo.ExportTransactions(ctx, userID, from, to)
+func (s *ReportsService) ExportTransactions(ctx context.Context, userID uuid.UUID, from, to, txType string, categoryIDs []uuid.UUID) ([]repository.TransactionExportRow, error) {
+	return s.repo.ExportTransactions(ctx, userID, from, to, txType, categoryIDs)
 }
 
 func (s *ReportsService) Savings(ctx context.Context, userID uuid.UUID, months int) (*SavingsResult, error) {

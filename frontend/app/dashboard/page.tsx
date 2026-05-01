@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/auth'
 import AppShell from '@/components/layout/AppShell'
 import MonthlyBar from '@/components/charts/MonthlyBar'
 import MonthPicker from '@/components/ui/MonthPicker'
+import ExportModal from '@/components/ui/ExportModal'
 
 function fmt(n: number) {
   return new Intl.NumberFormat('es').format(Math.round(n))
@@ -63,6 +64,7 @@ export default function DashboardPage() {
   const [monthly, setMonthly] = useState<MonthlyStatRow[]>([])
   const [catStats, setCatStats] = useState<CategoryStatRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [exportOpen, setExportOpen] = useState(false)
 
   useEffect(() => {
     setLoading(true)
@@ -96,6 +98,13 @@ export default function DashboardPage() {
   const headerRight = (
     <>
       <MonthPicker month={selectedMonth} onChange={setSelectedMonth} />
+      <button
+        onClick={() => setExportOpen(true)}
+        className="h-[30px] px-3.5 rounded-[7px] text-[11px] font-medium flex items-center transition-colors hover:opacity-80"
+        style={{ background: '#f7f7f2', color: '#555', border: '0.5px solid #d0d0cc' }}
+      >
+        Exportar
+      </button>
       <Link
         href="/transactions/new"
         className="h-[30px] px-3.5 rounded-[7px] text-[11px] font-medium text-white flex items-center"
@@ -108,6 +117,7 @@ export default function DashboardPage() {
 
   return (
     <AppShell title={`${greeting()}, ${displayName}`} headerRight={headerRight}>
+      <ExportModal open={exportOpen} onClose={() => setExportOpen(false)} />
       {/* ── HEADER MOBILE ── */}
       <div
         className="md:hidden -mx-4 -mt-4 px-3.5 pt-3 pb-4 mb-4"
@@ -139,6 +149,14 @@ export default function DashboardPage() {
             <div className="text-[7px] mb-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>Gastos</div>
             <div className="text-[9px] font-medium" style={{ color: '#f87171' }}>−${fmt(expense)}</div>
           </div>
+          <button
+            onClick={() => setExportOpen(true)}
+            className="rounded-[7px] px-2 py-1.5 flex flex-col items-center justify-center"
+            style={{ background: 'rgba(255,255,255,0.08)', border: '0.5px solid rgba(255,255,255,0.15)' }}
+          >
+            <div className="text-[7px]" style={{ color: 'rgba(255,255,255,0.45)' }}>Exportar</div>
+            <div className="text-[9px] font-medium text-white">CSV</div>
+          </button>
         </div>
       </div>
 
