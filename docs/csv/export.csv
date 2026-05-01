@@ -1,0 +1,24 @@
+ID,Fecha,Descripción,Categoría,Tipo,Monto,Moneda,Estado
+13942f0b-474a-4bb6-9b3b-b32b9c6e3b59,2026-05-27,Peluqueria,Gastos Personales,expense,15000.00,ARS,confirmed
+0b01403c-37a4-42f1-a5f1-d2754ab40182,2026-05-22,Pedidos Ya+,Delivery,expense,3600.00,ARS,pending
+4b46aff0-0be3-44a7-ae58-a5d3b3630393,2026-05-20,Monotributo,Impuestos,expense,25000.00,ARS,pending
+ceea22b4-2c16-435b-bce8-92d1b009be20,2026-05-20,Natacion,Deportes,expense,130000.00,ARS,pending
+bc23176f-2335-4ee4-8c0c-31eea027182a,2026-05-19,iCloud,Gastos Personales,expense,1500.00,ARS,pending
+cc465def-24ed-4816-9c3c-ecc018c1beea,2026-05-18,Psicologa,Salud/Médicos,expense,45000.00,ARS,confirmed
+52b6e698-7bfb-4aae-9a1b-4d0d963cc88a,2026-05-13,Peluqueria,Gastos Personales,expense,15000.00,ARS,confirmed
+70fd6317-0d26-4de9-93b1-77f7a758e6e3,2026-05-10,Disney+,Entretenimiento,expense,18400.00,ARS,confirmed
+a58cd771-3d4b-48c2-a49b-c1af63f103a6,2026-05-08,Spotify,Entretenimiento,expense,4900.00,ARS,confirmed
+9158373f-094f-40f8-8e6c-164f45ffe3cd,2026-05-06,Universidad 3/6,Cuotas,expense,160000.00,ARS,confirmed
+9d4e9f9a-d79a-43c6-bbd5-9a4d1d02b1c7,2026-05-06,Claude ,Cuotas,expense,28600.00,ARS,confirmed
+84eac4ff-9538-4a27-940d-41ef6921f6d7,2026-05-06,Cuota Medias 7/12,Cuotas,expense,840.00,ARS,confirmed
+e16bd96f-c89f-4f7a-b780-78dd14d2cb0d,2026-05-06,Entrada Neo Pistea,Cuotas,expense,51699.99,ARS,confirmed
+532edfba-bc9f-4143-b21e-94c8ffcddfab,2026-05-06,Cuota Botines Peco 6/9,Cuotas,expense,8900.00,ARS,confirmed
+a6d78957-bff8-445c-9583-754d876d701d,2026-05-06,Cuota Zapatillas Dep 4/9,Cuotas,expense,21100.00,ARS,confirmed
+3e7ad317-f7b2-4d1c-acd2-edb8d5b0f787,2026-05-06,Cuota Botines 9/12,Cuotas,expense,6700.00,ARS,confirmed
+df231af3-3e79-44a7-ac5d-c04cb61b47be,2026-05-06,Plazo Fijo,Inversiones,investment,1530000.00,ARS,confirmed
+e0b132b0-33ff-44c7-b649-07c5c3df6224,2026-05-06,Plazo Fijo,Inversiones,investment,1524000.00,ARS,confirmed
+1eb87e4f-6a11-4606-acac-cf315d8b1899,2026-05-04,Gimnasio,Deportes,expense,50000.00,ARS,confirmed
+d08fd267-f3e6-4467-903e-9f74ad00a62e,2026-05-04,Psicologa,Salud/Médicos,expense,45000.00,ARS,confirmed
+dcaf78bf-0585-4b2f-a643-616161206ef9,2026-05-01,Sueldo ayudantías,Sueldo,income,155000.00,ARS,pending
+f98bfaab-ea0d-41c5-8d8e-7f8053201f43,2026-05-01,Sueldo Danka,Sueldo,income,1300000.00,ARS,pending
+3e9e36a5-e671-45ce-a9fe-63023a8f4640,2026-05-01,Ahorro Abril,Ahorro,savings,2000000.00,ARS,confirmed

@@ -82,3 +82,22 @@ func (h *TransactionHandler) Delete(c *gin.Context) {
 	}
 	c.Status(http.StatusNoContent)
 }
+
+func (h *TransactionHandler) Import(c *gin.Context) {
+	userID := c.MustGet("userID").(uuid.UUID)
+
+	file, _, err := c.Request.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "se requiere un archivo CSV"})
+		return
+	}
+	defer file.Close()
+
+	result, err := h.svc.ImportCSV(c.Request.Context(), userID, file)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}

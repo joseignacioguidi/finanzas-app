@@ -179,6 +179,23 @@ export async function getTopTransactions(from: string, to: string, limit = 10): 
   return apiFetch<TopTransactionsResult>(`/api/reports/top-transactions?from=${from}&to=${to}&limit=${limit}`)
 }
 
+export async function importTransactions(file: File): Promise<{ imported: number; skipped: string[] }> {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
+  const body = new FormData()
+  body.append('file', file)
+  const response = await fetch(`${API_URL}/api/transactions/import`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body,
+  })
+  if (!response.ok) {
+    const err = await response.json()
+    throw new Error(err.error ?? 'Error al importar')
+  }
+  return response.json()
+}
+
 export async function exportTransactions(
   from: string,
   to: string,

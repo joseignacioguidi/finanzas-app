@@ -31,7 +31,7 @@ func main() {
 	// Services
 	catSvc := service.NewCategoryService(catRepo, txRepo)
 	authSvc := service.NewAuthService(userRepo, catSvc)
-	txSvc := service.NewTransactionService(txRepo)
+	txSvc := service.NewTransactionService(txRepo, catRepo)
 	statsSvc := service.NewStatsService(txRepo)
 	recurringSvc := service.NewRecurringTransactionService(recurringRepo, txRepo)
 	reportsSvc := service.NewReportsService(reportsRepo)
@@ -81,6 +81,7 @@ func main() {
 		{
 			protected.GET("/transactions", txH.GetAll)
 			protected.POST("/transactions", txH.Create)
+			protected.POST("/transactions/import", txH.Import)
 			protected.PUT("/transactions/:id", txH.Update)
 			protected.DELETE("/transactions/:id", txH.Delete)
 

@@ -11,6 +11,7 @@ import (
 type CategoryRepository interface {
 	FindAll(ctx context.Context, userID uuid.UUID) ([]model.Category, error)
 	FindByID(ctx context.Context, id uuid.UUID) (*model.Category, error)
+	FindByName(ctx context.Context, userID uuid.UUID, name string) (*model.Category, error)
 	Create(ctx context.Context, cat *model.Category) error
 	Update(ctx context.Context, cat *model.Category) error
 	Delete(ctx context.Context, id uuid.UUID) error
@@ -35,6 +36,16 @@ func (r *categoryRepo) FindAll(ctx context.Context, userID uuid.UUID) ([]model.C
 func (r *categoryRepo) FindByID(ctx context.Context, id uuid.UUID) (*model.Category, error) {
 	var cat model.Category
 	if err := r.db.WithContext(ctx).First(&cat, "id = ?", id).Error; err != nil {
+		return nil, err
+	}
+	return &cat, nil
+}
+
+func (r *categoryRepo) FindByName(ctx context.Context, userID uuid.UUID, name string) (*model.Category, error) {
+	var cat model.Category
+	if err := r.db.WithContext(ctx).
+		Where("user_id = ? AND LOWER(name) = LOWER(?)", userID, name).
+		First(&cat).Error; err != nil {
 		return nil, err
 	}
 	return &cat, nil
