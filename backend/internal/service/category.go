@@ -97,7 +97,6 @@ var defaultCategories = []CategoryInput{
 	{Name: "Impuestos", Color: "#6B7280", Icon: "Receipt", Type: "expense"},
 	{Name: "Ropa", Color: "#A855F7", Icon: "Shirt", Type: "expense"},
 	{Name: "Cuotas", Color: "#3B82F6", Icon: "CreditCard", Type: "expense"},
-	{Name: "Apuestas", Color: "#F59E0B", Icon: "Dices", Type: "expense"},
 	{Name: "Inversiones", Color: "#10B981", Icon: "TrendingUp", Type: "investment"},
 	{Name: "Entretenimiento", Color: "#8B5CF6", Icon: "Tv", Type: "expense"},
 	{Name: "Comida/Supermercado", Color: "#F5A623", Icon: "ShoppingCart", Type: "expense"},
