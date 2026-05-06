@@ -38,6 +38,13 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
     ...options,
   })
 
+  if (response.status === 401) {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+    window.location.href = '/'
+    throw new Error('Sesión expirada')
+  }
+
   if (!response.ok) {
     const error: APIError = await response.json()
     throw new Error(error.error ?? 'Error desconocido')
