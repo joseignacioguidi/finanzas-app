@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Pencil, Trash2, Search, Pin, PinOff, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import { getTransactions, deleteTransaction, getCategories, createRecurringTransaction, deactivateRecurringTransaction } from '@/lib/api'
 import type { Transaction, Category } from '@/lib/types'
@@ -56,6 +56,51 @@ function TransactionTable({
 
   const [sortKey, setSortKey] = useState<SortKey | null>(null)
   const [sortDir, setSortDir] = useState<SortDir>('asc')
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [isSelecting, setIsSelecting] = useState(false)
+  const [cursor, setCursor] = useState<{ x: number; y: number } | null>(null)
+  const isRowClick = useRef(false)
+
+  useEffect(() => {
+    function onMouseUp() { setIsSelecting(false) }
+    function onMouseMove(e: MouseEvent) { setCursor({ x: e.clientX, y: e.clientY }) }
+    function onDocMouseDown(e: MouseEvent) {
+      if (!isRowClick.current && !e.ctrlKey) setSelectedIds(new Set())
+      isRowClick.current = false
+    }
+    function onKeyUp(e: KeyboardEvent) {
+      if (e.key === 'Control') setIsSelecting(false)
+    }
+    document.addEventListener('mouseup', onMouseUp)
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mousedown', onDocMouseDown)
+    document.addEventListener('keyup', onKeyUp)
+    return () => {
+      document.removeEventListener('mouseup', onMouseUp)
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mousedown', onDocMouseDown)
+      document.removeEventListener('keyup', onKeyUp)
+    }
+  }, [])
+
+  function handleRowMouseDown(e: React.MouseEvent, tx: Transaction) {
+    if ((e.target as HTMLElement).closest('button')) return
+    if (!e.ctrlKey) return
+    e.preventDefault()
+    isRowClick.current = true
+    setIsSelecting(true)
+    setSelectedIds(new Set([tx.id]))
+  }
+
+  function handleRowMouseEnter(tx: Transaction) {
+    if (isSelecting) setSelectedIds(prev => new Set([...prev, tx.id]))
+  }
+
+  const selectedTotal = useMemo(
+    () => rows.filter(tx => selectedIds.has(tx.id)).reduce((sum, tx) => sum + tx.amount, 0),
+    [rows, selectedIds]
+  )
 
   function handleSort(key: SortKey) {
     if (sortKey === key) {
@@ -149,6 +194,8 @@ function TransactionTable({
             {sorted.map(tx => {
               const cat = catMap[tx.category_id]
               const catColors = cat ? hexToLight(cat.color) : null
+              const isSelected = selectedIds.has(tx.id)
+              const selectedBg = isIncome ? '#dcfce7' : '#fee2e2'
 
               return (
                 <div
@@ -157,8 +204,15 @@ function TransactionTable({
                 >
                   {/* Desktop */}
                   <div
-                    className="hidden md:grid px-3 py-2 items-center hover:bg-[#fafaf7] transition-colors"
-                    style={{ gridTemplateColumns: '2fr 1.2fr 1fr 80px 72px' }}
+                    className="hidden md:grid px-3 py-2 items-center transition-colors"
+                    style={{
+                      gridTemplateColumns: '2fr 1.2fr 1fr 80px 72px',
+                      background: isSelected ? selectedBg : undefined,
+                      cursor: 'default',
+                      userSelect: 'none',
+                    }}
+                    onMouseDown={e => handleRowMouseDown(e, tx)}
+                    onMouseEnter={() => handleRowMouseEnter(tx)}
                   >
                     <div className="flex items-center gap-1.5">
                       <span className="text-[11px] text-[var(--color-text-primary)] truncate">
@@ -276,6 +330,29 @@ function TransactionTable({
           </>
         )}
       </div>
+      {selectedIds.size > 0 && cursor && (
+        <div
+          style={{
+            position: 'fixed',
+            left: cursor.x + 14,
+            top: cursor.y + 14,
+            zIndex: 9999,
+            pointerEvents: 'none',
+            background: '#1a1a1a',
+            color: '#fff',
+            borderRadius: '6px',
+            padding: '4px 10px',
+            fontSize: '11px',
+            fontWeight: 500,
+            whiteSpace: 'nowrap',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+          }}
+        >
+          {selectedIds.size === 1 ? '1 fila' : `${selectedIds.size} filas`}
+          {' · '}
+          {isIncome ? '+' : '−'}${formatAmount(selectedTotal)}
+        </div>
+      )}
     </div>
   )
 }
