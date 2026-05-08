@@ -18,6 +18,10 @@ import type {
   GoalResult,
   GoalInput,
   EmergencyFundResult,
+  Budget,
+  BudgetResult,
+  BudgetInput,
+  BudgetUpdateInput,
 } from '@/lib/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
@@ -259,4 +263,29 @@ export async function deleteGoal(id: string): Promise<void> {
 
 export async function getEmergencyFund(): Promise<EmergencyFundResult> {
   return apiFetch<EmergencyFundResult>('/api/goals/emergency-fund')
+}
+
+// ── Budgets ───────────────────────────────────────────────────────────────────
+
+export async function getBudgets(month: number, year: number): Promise<BudgetResult[]> {
+  const data = await apiFetch<BudgetResult[] | null>(`/api/budgets?month=${month}&year=${year}`)
+  return data ?? []
+}
+
+export async function createBudget(input: BudgetInput): Promise<Budget> {
+  return apiFetch<Budget>('/api/budgets', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export async function updateBudget(id: string, input: BudgetUpdateInput): Promise<Budget> {
+  return apiFetch<Budget>(`/api/budgets/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  })
+}
+
+export async function deleteBudget(id: string): Promise<void> {
+  return apiFetch<void>(`/api/budgets/${id}`, { method: 'DELETE' })
 }

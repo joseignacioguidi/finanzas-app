@@ -27,6 +27,7 @@ func main() {
 	recurringRepo := repository.NewRecurringTransactionRepository(database)
 	reportsRepo := repository.NewReportsRepository(database)
 	goalRepo := repository.NewGoalRepository(database)
+	budgetRepo := repository.NewBudgetRepository(database)
 
 	// Services
 	catSvc := service.NewCategoryService(catRepo, txRepo)
@@ -36,6 +37,7 @@ func main() {
 	recurringSvc := service.NewRecurringTransactionService(recurringRepo, txRepo)
 	reportsSvc := service.NewReportsService(reportsRepo)
 	goalsSvc := service.NewGoalsService(goalRepo, reportsRepo)
+	budgetSvc := service.NewBudgetService(budgetRepo, catRepo)
 
 	// Handlers
 	authH := handler.NewAuthHandler(authSvc)
@@ -45,6 +47,7 @@ func main() {
 	recurringH := handler.NewRecurringTransactionHandler(recurringSvc)
 	reportsH := handler.NewReportsHandler(reportsSvc)
 	goalsH := handler.NewGoalsHandler(goalsSvc)
+	budgetH := handler.NewBudgetHandler(budgetSvc)
 
 	r := gin.Default()
 
@@ -122,6 +125,14 @@ func main() {
 				goals.POST("", goalsH.Create)
 				goals.PUT("/:id", goalsH.Update)
 				goals.DELETE("/:id", goalsH.Delete)
+			}
+
+			budgets := protected.Group("/budgets")
+			{
+				budgets.GET("", budgetH.GetMonthly)
+				budgets.POST("", budgetH.Create)
+				budgets.PUT("/:id", budgetH.Update)
+				budgets.DELETE("/:id", budgetH.Delete)
 			}
 		}
 	}

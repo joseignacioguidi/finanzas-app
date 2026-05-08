@@ -209,3 +209,38 @@ export interface EmergencyFundResult {
   recommended_3m: number
   recommended_6m: number
 }
+
+// ── Budgets ───────────────────────────────────────────────────────────────────
+
+export type BudgetStatus = 'ok' | 'warning' | 'exceeded'
+
+export interface Budget {
+  id: string
+  user_id: string
+  category_id: string
+  amount: number
+  month: number
+  year: number
+  created_at: string
+  updated_at: string
+}
+
+export interface BudgetResult extends Budget {
+  category_name: string
+  category_color: string
+  category_icon: string
+  spent: number
+  percentage: number
+  status: BudgetStatus
+}
+
+export interface BudgetInput {
+  category_id: string
+  amount: number
+  month: number
+  year: number
+}
+
+export interface BudgetUpdateInput {
+  amount: number
+}
