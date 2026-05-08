@@ -74,15 +74,17 @@ func (s *RecurringTransactionService) Create(ctx context.Context, userID uuid.UU
 		}
 
 		tx := &model.Transaction{
-			UserID:      userID,
-			CategoryID:  catID,
-			Type:        rt.Type,
-			Amount:      rt.Amount,
-			Currency:    rt.Currency,
-			Description: rt.Description,
-			Date:        model.Date{Time: date},
-			Status:      status,
-			RecurringID: &rt.ID,
+			UserID:       userID,
+			CategoryID:   catID,
+			Type:         rt.Type,
+			Amount:       rt.Amount,
+			Currency:     rt.Currency,
+			ExchangeRate: 1,
+			BaseAmount:   rt.Amount,
+			Description:  rt.Description,
+			Date:         model.Date{Time: date},
+			Status:       status,
+			RecurringID:  &rt.ID,
 		}
 		if err := s.txRepo.Create(ctx, tx); err != nil {
 			return nil, err

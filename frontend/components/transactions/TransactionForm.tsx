@@ -7,7 +7,7 @@ import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
 import Select from '@/components/ui/Select'
 
-const CURRENCIES = ['ARS', 'USD', 'EUR', 'BRL']
+const CURRENCIES = ['ARS', 'USD', 'EUR']
 
 interface TransactionFormProps {
   initial?: Transaction

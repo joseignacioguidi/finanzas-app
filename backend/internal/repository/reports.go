@@ -31,6 +31,7 @@ type ReportMonthlyRow struct {
 type TopTransactionRow struct {
 	ID            string  `json:"id"`
 	Amount        float64 `json:"amount"`
+	BaseAmount    float64 `json:"base_amount"`
 	Currency      string  `json:"currency"`
 	Description   string  `json:"description"`
 	Date          string  `json:"date"`
@@ -87,8 +88,8 @@ func (r *reportsRepo) Summary(ctx context.Context, userID uuid.UUID, from, to st
 	var result ReportSummaryRow
 	err := r.db.WithContext(ctx).Raw(`
 		SELECT
-			COALESCE(SUM(CASE WHEN c.type = 'income' THEN t.amount ELSE 0 END), 0)  AS total_income,
-			COALESCE(SUM(CASE WHEN c.type = 'expense' THEN t.amount ELSE 0 END), 0) AS total_expense
+			COALESCE(SUM(CASE WHEN c.type = 'income' THEN t.base_amount ELSE 0 END), 0)  AS total_income,
+			COALESCE(SUM(CASE WHEN c.type = 'expense' THEN t.base_amount ELSE 0 END), 0) AS total_expense
 		FROM transactions t
 		JOIN categories c ON c.id = t.category_id
 		WHERE t.user_id = ?
@@ -107,7 +108,7 @@ func (r *reportsRepo) ByCategory(ctx context.Context, userID uuid.UUID, from, to
 			c.name                     AS category_name,
 			c.color,
 			COALESCE(c.icon, '')       AS icon,
-			SUM(t.amount)              AS total
+			SUM(t.base_amount)         AS total
 		FROM transactions t
 		JOIN categories c ON c.id = t.category_id
 		WHERE t.user_id = ?
@@ -125,8 +126,8 @@ func (r *reportsRepo) Monthly(ctx context.Context, userID uuid.UUID, year int) (
 	err := r.db.WithContext(ctx).Raw(`
 		SELECT
 			TO_CHAR(DATE_TRUNC('month', t.date), 'YYYY-MM') AS month,
-			COALESCE(SUM(CASE WHEN c.type = 'income' THEN t.amount ELSE 0 END), 0)  AS income,
-			COALESCE(SUM(CASE WHEN c.type = 'expense' THEN t.amount ELSE 0 END), 0) AS expense
+			COALESCE(SUM(CASE WHEN c.type = 'income' THEN t.base_amount ELSE 0 END), 0)  AS income,
+			COALESCE(SUM(CASE WHEN c.type = 'expense' THEN t.base_amount ELSE 0 END), 0) AS expense
 		FROM transactions t
 		JOIN categories c ON c.id = t.category_id
 		WHERE t.user_id = ?
@@ -145,6 +146,7 @@ func (r *reportsRepo) TopTransactions(ctx context.Context, userID uuid.UUID, fro
 		SELECT
 			t.id::text                       AS id,
 			t.amount,
+			t.base_amount,
 			t.currency,
 			COALESCE(t.description, '')      AS description,
 			TO_CHAR(t.date, 'YYYY-MM-DD')   AS date,
@@ -159,7 +161,7 @@ func (r *reportsRepo) TopTransactions(ctx context.Context, userID uuid.UUID, fro
 		  AND t.date BETWEEN ?::date AND ?::date
 		  AND t.status = 'confirmed'
 		  AND c.type IN ('income', 'expense')
-		ORDER BY t.amount DESC
+		ORDER BY t.base_amount DESC
 		LIMIT ?
 	`, userID, from, to, limit).Scan(&rows).Error
 	return rows, err
@@ -209,8 +211,8 @@ func (r *reportsRepo) SavingsByMonth(ctx context.Context, userID uuid.UUID, from
 	err := r.db.WithContext(ctx).Raw(`
 		SELECT
 			TO_CHAR(DATE_TRUNC('month', t.date), 'YYYY-MM') AS month,
-			COALESCE(SUM(CASE WHEN c.type = 'income' THEN t.amount ELSE 0 END), 0)  AS income,
-			COALESCE(SUM(CASE WHEN c.type = 'expense' THEN t.amount ELSE 0 END), 0) AS expense
+			COALESCE(SUM(CASE WHEN c.type = 'income' THEN t.base_amount ELSE 0 END), 0)  AS income,
+			COALESCE(SUM(CASE WHEN c.type = 'expense' THEN t.base_amount ELSE 0 END), 0) AS expense
 		FROM transactions t
 		JOIN categories c ON c.id = t.category_id
 		WHERE t.user_id = ?
@@ -229,7 +231,7 @@ func (r *reportsRepo) TrendPeriod(ctx context.Context, userID uuid.UUID, from, t
 		SELECT
 			t.category_id::text AS category_id,
 			c.name              AS category_name,
-			SUM(t.amount)       AS total
+			SUM(t.base_amount)  AS total
 		FROM transactions t
 		JOIN categories c ON c.id = t.category_id
 		WHERE t.user_id = ?
@@ -244,7 +246,7 @@ func (r *reportsRepo) TrendPeriod(ctx context.Context, userID uuid.UUID, from, t
 func (r *reportsRepo) AvgMonthlyExpense(ctx context.Context, userID uuid.UUID, fromDate string, months int) (float64, error) {
 	var total float64
 	err := r.db.WithContext(ctx).Raw(`
-		SELECT COALESCE(SUM(t.amount), 0)
+		SELECT COALESCE(SUM(t.base_amount), 0)
 		FROM transactions t
 		JOIN categories c ON c.id = t.category_id
 		WHERE t.user_id = ?

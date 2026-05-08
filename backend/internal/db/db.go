@@ -26,6 +26,10 @@ func Connect() *gorm.DB {
 		}
 	}
 
+	// Migración de datos: exchange_rate=1 y base_amount=amount para transacciones pre-existentes
+	if err := db.Exec(`UPDATE transactions SET exchange_rate = 1, base_amount = amount WHERE base_amount = 0 AND amount > 0`).Error; err != nil {
+		log.Printf("advertencia en migración de datos: %v", err)
+	}
 
 	return db
 }

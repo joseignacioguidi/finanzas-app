@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { login as apiLogin } from '@/lib/api'
+import { login as apiLogin, getMe } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
@@ -26,9 +26,9 @@ export default function LoginPage() {
     setSubmitting(true)
     try {
       const { token: newToken } = await apiLogin(email, password)
-      // Guardamos el token — el user se carga en la próxima request autenticada
-      // Por ahora construimos un user mínimo desde el email
-      login(newToken, { id: '', email, created_at: '', updated_at: '' })
+      localStorage.setItem('token', newToken)
+      const me = await getMe()
+      login(newToken, me)
       router.push('/dashboard')
     } catch (err: any) {
       setError(err.message ?? 'Credenciales incorrectas')

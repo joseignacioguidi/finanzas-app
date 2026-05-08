@@ -30,9 +30,11 @@ func main() {
 	budgetRepo := repository.NewBudgetRepository(database)
 
 	// Services
+	exchangeSvc := service.NewExchangeRateService()
 	catSvc := service.NewCategoryService(catRepo, txRepo)
 	authSvc := service.NewAuthService(userRepo, catSvc)
-	txSvc := service.NewTransactionService(txRepo, catRepo)
+	userSvc := service.NewUserService(userRepo)
+	txSvc := service.NewTransactionService(txRepo, catRepo, userRepo, exchangeSvc)
 	statsSvc := service.NewStatsService(txRepo)
 	recurringSvc := service.NewRecurringTransactionService(recurringRepo, txRepo)
 	reportsSvc := service.NewReportsService(reportsRepo)
@@ -41,6 +43,7 @@ func main() {
 
 	// Handlers
 	authH := handler.NewAuthHandler(authSvc)
+	userH := handler.NewUserHandler(userSvc)
 	catH := handler.NewCategoryHandler(catSvc)
 	txH := handler.NewTransactionHandler(txSvc)
 	statsH := handler.NewStatsHandler(statsSvc)
@@ -48,6 +51,7 @@ func main() {
 	reportsH := handler.NewReportsHandler(reportsSvc)
 	goalsH := handler.NewGoalsHandler(goalsSvc)
 	budgetH := handler.NewBudgetHandler(budgetSvc)
+	exchangeRateH := handler.NewExchangeRateHandler(exchangeSvc)
 
 	r := gin.Default()
 
@@ -82,6 +86,11 @@ func main() {
 		protected := api.Group("")
 		protected.Use(middleware.AuthRequired())
 		{
+			protected.GET("/user/me", userH.GetMe)
+			protected.PUT("/user/me", userH.UpdateBaseCurrency)
+
+			protected.GET("/exchange-rates", exchangeRateH.GetRate)
+
 			protected.GET("/transactions", txH.GetAll)
 			protected.POST("/transactions", txH.Create)
 			protected.POST("/transactions/import", txH.Import)

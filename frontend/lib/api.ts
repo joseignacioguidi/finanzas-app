@@ -58,6 +58,13 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   return response.json() as Promise<T>
 }
 
+export interface ExchangeRateResult {
+  from: string
+  to: string
+  rate: number
+  fetched_at: string
+}
+
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
 export async function register(email: string, password: string): Promise<User> {
@@ -72,6 +79,25 @@ export async function login(email: string, password: string): Promise<{ token: s
     method: 'POST',
     body: JSON.stringify({ email, password }),
   })
+}
+
+// ── User ──────────────────────────────────────────────────────────────────────
+
+export async function getMe(): Promise<User> {
+  return apiFetch<User>('/api/user/me')
+}
+
+export async function updateBaseCurrency(currency: string): Promise<User> {
+  return apiFetch<User>('/api/user/me', {
+    method: 'PUT',
+    body: JSON.stringify({ base_currency: currency }),
+  })
+}
+
+// ── Exchange rates ────────────────────────────────────────────────────────────
+
+export async function getExchangeRate(from: string, to: string): Promise<ExchangeRateResult> {
+  return apiFetch<ExchangeRateResult>(`/api/exchange-rates?from=${from}&to=${to}`)
 }
 
 // ── Transactions ──────────────────────────────────────────────────────────────

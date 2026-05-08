@@ -15,12 +15,19 @@ import (
 )
 
 type TransactionService struct {
-	repo    repository.TransactionRepository
-	catRepo repository.CategoryRepository
+	repo        repository.TransactionRepository
+	catRepo     repository.CategoryRepository
+	userRepo    repository.UserRepository
+	exchangeSvc *ExchangeRateService
 }
 
-func NewTransactionService(repo repository.TransactionRepository, catRepo repository.CategoryRepository) *TransactionService {
-	return &TransactionService{repo: repo, catRepo: catRepo}
+func NewTransactionService(
+	repo repository.TransactionRepository,
+	catRepo repository.CategoryRepository,
+	userRepo repository.UserRepository,
+	exchangeSvc *ExchangeRateService,
+) *TransactionService {
+	return &TransactionService{repo: repo, catRepo: catRepo, userRepo: userRepo, exchangeSvc: exchangeSvc}
 }
 
 type ImportResult struct {
@@ -41,6 +48,23 @@ func (s *TransactionService) GetAll(ctx context.Context, userID uuid.UUID, filte
 	return s.repo.FindAll(ctx, userID, filter)
 }
 
+func (s *TransactionService) resolveExchangeRate(ctx context.Context, userID uuid.UUID, currency string, amount float64) (exchangeRate, baseAmount float64, err error) {
+	user, err := s.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return 0, 0, errors.New("usuario no encontrado")
+	}
+
+	if currency == user.BaseCurrency {
+		return 1, amount, nil
+	}
+
+	rate, _, err := s.exchangeSvc.GetRate(currency, user.BaseCurrency)
+	if err != nil {
+		return 0, 0, fmt.Errorf("no se pudo obtener tipo de cambio %s→%s: %w", currency, user.BaseCurrency, err)
+	}
+	return rate, amount * rate, nil
+}
+
 func (s *TransactionService) Create(ctx context.Context, userID uuid.UUID, input TransactionInput) (*model.Transaction, error) {
 	catID, err := uuid.Parse(input.CategoryID)
 	if err != nil {
@@ -52,14 +76,21 @@ func (s *TransactionService) Create(ctx context.Context, userID uuid.UUID, input
 		return nil, errors.New("fecha inválida, formato esperado: YYYY-MM-DD")
 	}
 
+	exchangeRate, baseAmount, err := s.resolveExchangeRate(ctx, userID, input.Currency, input.Amount)
+	if err != nil {
+		return nil, err
+	}
+
 	tx := &model.Transaction{
-		UserID:      userID,
-		CategoryID:  catID,
-		Type:        model.TransactionType(input.Type),
-		Amount:      input.Amount,
-		Currency:    input.Currency,
-		Description: input.Description,
-		Date:        model.Date{Time: t},
+		UserID:       userID,
+		CategoryID:   catID,
+		Type:         model.TransactionType(input.Type),
+		Amount:       input.Amount,
+		Currency:     input.Currency,
+		ExchangeRate: exchangeRate,
+		BaseAmount:   baseAmount,
+		Description:  input.Description,
+		Date:         model.Date{Time: t},
 	}
 
 	if err := s.repo.Create(ctx, tx); err != nil {
@@ -88,10 +119,17 @@ func (s *TransactionService) Update(ctx context.Context, userID uuid.UUID, id uu
 		return nil, errors.New("fecha inválida, formato esperado: YYYY-MM-DD")
 	}
 
+	exchangeRate, baseAmount, err := s.resolveExchangeRate(ctx, userID, input.Currency, input.Amount)
+	if err != nil {
+		return nil, err
+	}
+
 	tx.CategoryID = catID
 	tx.Type = model.TransactionType(input.Type)
 	tx.Amount = input.Amount
 	tx.Currency = input.Currency
+	tx.ExchangeRate = exchangeRate
+	tx.BaseAmount = baseAmount
 	tx.Description = input.Description
 	tx.Date = model.Date{Time: t2}
 
@@ -115,6 +153,7 @@ func (s *TransactionService) Delete(ctx context.Context, userID uuid.UUID, id uu
 
 // ImportCSV parsea el CSV exportado y crea las transacciones que no fallen.
 // Columnas esperadas: ID,Fecha,Descripción,Categoría,Tipo,Monto,Moneda,Estado
+// El CSV no tiene tipos de cambio históricos, se usa rate=1 para importaciones.
 func (s *TransactionService) ImportCSV(ctx context.Context, userID uuid.UUID, r io.Reader) (*ImportResult, error) {
 	reader := csv.NewReader(r)
 	reader.LazyQuotes = true
@@ -172,14 +211,16 @@ func (s *TransactionService) ImportCSV(ctx context.Context, userID uuid.UUID, r 
 		}
 
 		tx := &model.Transaction{
-			UserID:      userID,
-			CategoryID:  cat.ID,
-			Type:        txType,
-			Amount:      amount,
-			Currency:    currency,
-			Description: row[2],
-			Date:        model.Date{Time: date},
-			Status:      status,
+			UserID:       userID,
+			CategoryID:   cat.ID,
+			Type:         txType,
+			Amount:       amount,
+			Currency:     currency,
+			ExchangeRate: 1,
+			BaseAmount:   amount,
+			Description:  row[2],
+			Date:         model.Date{Time: date},
+			Status:       status,
 		}
 
 		if err := s.repo.Create(ctx, tx); err != nil {

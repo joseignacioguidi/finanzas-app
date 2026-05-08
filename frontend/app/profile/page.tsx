@@ -2,9 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { getTransactions } from '@/lib/api'
+import { getTransactions, getMe, updateBaseCurrency } from '@/lib/api'
 import { useAuth } from '@/lib/auth'
 import AppShell from '@/components/layout/AppShell'
+import type { User } from '@/lib/types'
+
+const CURRENCY_LABELS: Record<string, string> = {
+  ARS: 'Peso argentino (ARS)',
+  USD: 'Dólar estadounidense (USD)',
+  EUR: 'Euro (EUR)',
+}
 
 function monthsSince(dateStr: string): number {
   if (!dateStr) return 0
@@ -14,28 +21,52 @@ function monthsSince(dateStr: string): number {
 }
 
 export default function ProfilePage() {
-  const { user, logout } = useAuth()
+  const { user: authUser, login, logout } = useAuth()
   const router = useRouter()
+  const [user, setUser] = useState<User | null>(authUser)
   const [txCount, setTxCount] = useState<number | null>(null)
   const [notifications, setNotifications] = useState(true)
   const [darkMode, setDarkMode] = useState(false)
+  const [savingCurrency, setSavingCurrency] = useState(false)
+  const [currencyError, setCurrencyError] = useState('')
 
   useEffect(() => {
+    getMe().then(me => {
+      setUser(me)
+      const token = localStorage.getItem('token')
+      if (token) login(token, me)
+    }).catch(() => {})
     getTransactions({})
       .then(txs => setTxCount(txs.length))
       .catch(() => setTxCount(0))
   }, [])
+
+  async function handleCurrencyChange(currency: string) {
+    setSavingCurrency(true)
+    setCurrencyError('')
+    try {
+      const updated = await updateBaseCurrency(currency)
+      setUser(updated)
+      const token = localStorage.getItem('token')
+      if (token) login(token, updated)
+    } catch (err: any) {
+      setCurrencyError(err.message ?? 'Error al guardar')
+    } finally {
+      setSavingCurrency(false)
+    }
+  }
 
   function handleLogout() {
     logout()
     router.push('/')
   }
 
-  const email = user?.email ?? ''
+  const email = user?.email ?? authUser?.email ?? ''
   const initials = email.slice(0, 2).toUpperCase()
   const displayName = email.split('@')[0] ?? ''
   const since = user?.created_at ? new Date(user.created_at).toLocaleDateString('es', { month: 'long', year: 'numeric' }) : '—'
   const months = user?.created_at ? monthsSince(user.created_at) : 0
+  const baseCurrency = user?.base_currency ?? 'ARS'
 
   const headerRight = (
     <button
@@ -120,15 +151,51 @@ export default function ProfilePage() {
               Preferencias
             </div>
 
-            <SettingsRow iconColor="#0284c7" label="Moneda" value="Peso argentino (ARS)">
-              <span className="text-[11px] text-[var(--color-text-muted)]">›</span>
-            </SettingsRow>
+            {/* Moneda base */}
+            <div
+              className="flex items-start gap-3 py-2.5"
+              style={{ borderBottom: '0.5px solid #e8e8e0' }}
+            >
+              <div
+                className="w-[26px] h-[26px] rounded-[7px] flex items-center justify-center shrink-0 mt-0.5"
+                style={{ background: '#f7f7f2' }}
+              >
+                <div className="w-2.5 h-2.5 rounded-[3px]" style={{ background: '#0284c7' }} />
+              </div>
+              <div className="flex-1">
+                <div className="text-[12px] text-[var(--color-text-primary)] mb-1.5">Moneda base</div>
+                <div className="flex gap-1.5 flex-wrap">
+                  {(['ARS', 'USD', 'EUR'] as const).map(c => (
+                    <button
+                      key={c}
+                      type="button"
+                      disabled={savingCurrency}
+                      onClick={() => handleCurrencyChange(c)}
+                      className="text-[10px] px-2.5 py-1 rounded-[8px] transition-all disabled:opacity-50"
+                      style={
+                        baseCurrency === c
+                          ? { background: '#1a1a2e', color: '#fff', border: '0.5px solid #1a1a2e' }
+                          : { background: '#f7f7f2', color: '#666', border: '0.5px solid #d0d0cc' }
+                      }
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+                <div className="text-[10px] text-[var(--color-text-muted)] mt-1">
+                  {CURRENCY_LABELS[baseCurrency] ?? baseCurrency} · reportes y estadísticas
+                </div>
+                {currencyError && (
+                  <div className="text-[10px] text-red-600 mt-1">{currencyError}</div>
+                )}
+              </div>
+            </div>
 
             <SettingsRow iconColor="#9333ea" label="Notificaciones">
               <Toggle on={notifications} onToggle={() => setNotifications(v => !v)} />
             </SettingsRow>
 
-            <SettingsRow iconColor="#ca8a04" label="Tema oscuro" last>
+            <SettingsRow iconColor="#ca8a04" label="Tema oscuro">
               <Toggle on={darkMode} onToggle={() => setDarkMode(v => !v)} />
             </SettingsRow>
 

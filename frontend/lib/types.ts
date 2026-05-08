@@ -18,6 +18,7 @@ export const CATEGORY_TYPE_COLORS: Record<CategoryType, string> = {
 export interface User {
   id: string
   email: string
+  base_currency: string
   created_at: string
   updated_at: string
 }
@@ -43,6 +44,8 @@ export interface Transaction {
   type: TransactionType
   amount: number
   currency: string
+  exchange_rate: number
+  base_amount: number
   description: string
   date: string
   status: TransactionStatus
@@ -134,6 +137,7 @@ export interface ReportMonthlyRow {
 export interface TopTransactionRow {
   id: string
   amount: number
+  base_amount: number
   currency: string
   description: string
   date: string

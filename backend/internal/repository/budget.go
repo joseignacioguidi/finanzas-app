@@ -41,7 +41,7 @@ func (r *budgetRepo) FindMonthly(ctx context.Context, userID uuid.UUID, month, y
 			c.name  AS category_name,
 			c.color AS category_color,
 			c.icon  AS category_icon,
-			COALESCE(SUM(t.amount), 0) AS spent
+			COALESCE(SUM(t.base_amount), 0) AS spent
 		FROM budgets b
 		JOIN categories c ON c.id = b.category_id
 		LEFT JOIN transactions t

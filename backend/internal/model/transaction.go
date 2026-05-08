@@ -61,18 +61,20 @@ const (
 )
 
 type Transaction struct {
-	ID          uuid.UUID         `gorm:"type:uuid;primaryKey"         json:"id"`
-	UserID      uuid.UUID         `gorm:"type:uuid;not null"           json:"user_id"`
-	CategoryID  uuid.UUID         `gorm:"type:uuid;not null"           json:"category_id"`
-	Type        TransactionType   `gorm:"not null"                     json:"type"`
-	Amount      float64           `gorm:"not null"                     json:"amount"`
-	Currency    string            `gorm:"size:3;not null"              json:"currency"`
-	Description string            `gorm:"size:255"                     json:"description"`
-	Date        Date              `gorm:"not null"                     json:"date"`
-	Status      TransactionStatus `gorm:"not null;default:'confirmed'" json:"status"`
-	RecurringID *uuid.UUID        `gorm:"type:uuid"                    json:"recurring_id"`
-	CreatedAt   time.Time         `json:"created_at"`
-	UpdatedAt   time.Time         `json:"updated_at"`
+	ID           uuid.UUID         `gorm:"type:uuid;primaryKey"                    json:"id"`
+	UserID       uuid.UUID         `gorm:"type:uuid;not null"                      json:"user_id"`
+	CategoryID   uuid.UUID         `gorm:"type:uuid;not null"                      json:"category_id"`
+	Type         TransactionType   `gorm:"not null"                                json:"type"`
+	Amount       float64           `gorm:"not null"                                json:"amount"`
+	Currency     string            `gorm:"size:3;not null"                         json:"currency"`
+	ExchangeRate float64           `gorm:"type:decimal(18,6);not null;default:1"   json:"exchange_rate"`
+	BaseAmount   float64           `gorm:"type:decimal(12,2);not null;default:0"   json:"base_amount"`
+	Description  string            `gorm:"size:255"                                json:"description"`
+	Date         Date              `gorm:"not null"                                json:"date"`
+	Status       TransactionStatus `gorm:"not null;default:'confirmed'"            json:"status"`
+	RecurringID  *uuid.UUID        `gorm:"type:uuid"                               json:"recurring_id"`
+	CreatedAt    time.Time         `json:"created_at"`
+	UpdatedAt    time.Time         `json:"updated_at"`
 }
 
 func (t *Transaction) BeforeCreate(tx *gorm.DB) error {

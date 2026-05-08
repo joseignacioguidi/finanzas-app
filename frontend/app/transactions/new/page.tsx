@@ -3,10 +3,13 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { getCategories, createTransaction, createRecurringTransaction } from '@/lib/api'
+import { getCategories, createTransaction, createRecurringTransaction, getMe, getExchangeRate } from '@/lib/api'
 import type { Category, TransactionInput } from '@/lib/types'
 import AppShell from '@/components/layout/AppShell'
 import CategoryForm from '@/components/categories/CategoryForm'
+
+const CURRENCIES = ['ARS', 'USD', 'EUR'] as const
+type Currency = typeof CURRENCIES[number]
 
 const CATEGORIES_DEFAULT = [
   { id: '__comida', name: 'Comida', color: '#f87171' },
@@ -27,6 +30,10 @@ function fmtDateLabel(d: string) {
   return date.toLocaleDateString('es', { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
+function fmtAmount(n: number) {
+  return new Intl.NumberFormat('es', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
+}
+
 export default function NewTransactionPage() {
   return (
     <Suspense fallback={<div className="flex justify-center p-20"><div className="w-6 h-6 border-2 border-[#e0e0d8] border-t-[#1a1a2e] rounded-full animate-spin" /></div>}>
@@ -45,6 +52,9 @@ function NewTransactionContent() {
   const [error, setError] = useState('')
   const [showNewCategory, setShowNewCategory] = useState(false)
   const [isRecurring, setIsRecurring] = useState(false)
+  const [baseCurrency, setBaseCurrency] = useState<string>('ARS')
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null)
+  const [loadingRate, setLoadingRate] = useState(false)
 
   const [form, setForm] = useState<TransactionInput>({
     category_id: '',
@@ -55,6 +65,15 @@ function NewTransactionContent() {
     date: todayStr(),
   })
   const [amountInput, setAmountInput] = useState('')
+
+  useEffect(() => {
+    getMe()
+      .then(me => {
+        setBaseCurrency(me.base_currency)
+        setForm(prev => ({ ...prev, currency: me.base_currency }))
+      })
+      .catch(() => {})
+  }, [])
 
   const loadCategories = useCallback((selectLast = false) => {
     getCategories()
@@ -69,6 +88,27 @@ function NewTransactionContent() {
   }, [])
 
   useEffect(() => { loadCategories() }, [loadCategories])
+
+  // Carga el tipo de cambio cuando la moneda es distinta a la base
+  useEffect(() => {
+    if (form.currency === baseCurrency) {
+      setExchangeRate(null)
+      return
+    }
+    let cancelled = false
+    setLoadingRate(true)
+    getExchangeRate(form.currency, baseCurrency)
+      .then(result => {
+        if (!cancelled) setExchangeRate(result.rate)
+      })
+      .catch(() => {
+        if (!cancelled) setExchangeRate(null)
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingRate(false)
+      })
+    return () => { cancelled = true }
+  }, [form.currency, baseCurrency])
 
   function set<K extends keyof TransactionInput>(key: K, value: TransactionInput[K]) {
     setForm(prev => ({ ...prev, [key]: value }))
@@ -92,7 +132,7 @@ function NewTransactionContent() {
     } finally {
       setLoading(false)
     }
-  }, [form, router])
+  }, [form, router, isRecurring])
 
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
@@ -106,6 +146,8 @@ function NewTransactionContent() {
 
   const selectedCat = categories.find(c => c.id === form.category_id)
   const isIncome = form.type === 'income'
+  const isForeignCurrency = form.currency !== baseCurrency
+  const baseAmount = isForeignCurrency && exchangeRate ? form.amount * exchangeRate : null
 
   const headerRight = (
     <Link
@@ -164,13 +206,13 @@ function NewTransactionContent() {
             ))}
           </div>
 
-          {/* Monto grande */}
+          {/* Monto + Moneda */}
           <div
             className="text-center py-4"
             style={{ borderBottom: '0.5px solid #e8e8e0' }}
           >
             <div className="text-[8px] text-[var(--color-text-muted)] mb-1 uppercase tracking-[0.05em]">Monto</div>
-            <div className="flex items-baseline justify-center gap-1">
+            <div className="flex items-baseline justify-center gap-1 mb-2">
               <span className="text-[18px] text-[var(--color-text-muted)]">$</span>
               <input
                 type="number"
@@ -186,6 +228,45 @@ function NewTransactionContent() {
                 style={{ appearance: 'textfield' }}
               />
             </div>
+
+            {/* Selector de moneda */}
+            <div className="flex justify-center gap-1.5">
+              {CURRENCIES.map(c => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => set('currency', c)}
+                  className="text-[10px] px-2.5 py-1 rounded-[8px] font-medium transition-all duration-100"
+                  style={
+                    form.currency === c
+                      ? { background: '#1a1a2e', color: '#fff', border: '0.5px solid #1a1a2e' }
+                      : { background: '#f7f7f2', color: '#888', border: '0.5px solid #d0d0cc' }
+                  }
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+
+            {/* Tipo de cambio / base_amount estimado */}
+            {isForeignCurrency && (
+              <div className="mt-2 text-[10px] text-[var(--color-text-muted)]">
+                {loadingRate ? (
+                  'Cargando tipo de cambio...'
+                ) : exchangeRate ? (
+                  <>
+                    1 {form.currency} = {fmtAmount(exchangeRate)} {baseCurrency}
+                    {form.amount > 0 && (
+                      <span className="ml-2 font-medium text-[var(--color-text-primary)]">
+                        ≈ ${fmtAmount(form.amount * exchangeRate)} {baseCurrency}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-amber-600">No se pudo obtener el tipo de cambio</span>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Categoría pills */}
@@ -353,12 +434,19 @@ function NewTransactionContent() {
               {
                 key: 'Monto',
                 value: (
-                  <span
-                    className="text-[12px] font-medium"
-                    style={{ color: isIncome ? '#16a34a' : '#dc2626' }}
-                  >
-                    {isIncome ? '+' : '−'}${form.amount > 0 ? new Intl.NumberFormat('es').format(form.amount) : '0'}
-                  </span>
+                  <div className="text-right">
+                    <span
+                      className="text-[12px] font-medium"
+                      style={{ color: isIncome ? '#16a34a' : '#dc2626' }}
+                    >
+                      {isIncome ? '+' : '−'}${form.amount > 0 ? new Intl.NumberFormat('es').format(form.amount) : '0'} {form.currency}
+                    </span>
+                    {baseAmount !== null && (
+                      <div className="text-[10px] text-[var(--color-text-muted)] mt-0.5">
+                        ≈ ${fmtAmount(baseAmount)} {baseCurrency}
+                      </div>
+                    )}
+                  </div>
                 ),
               },
               {
@@ -404,8 +492,8 @@ function NewTransactionContent() {
                 ),
               },
             ].map(row => (
-              <div key={row.key} className="flex justify-between items-center mb-2 last:mb-0">
-                <span className="text-[11px] text-[var(--color-text-muted)]">{row.key}</span>
+              <div key={row.key} className="flex justify-between items-start mb-2 last:mb-0">
+                <span className="text-[11px] text-[var(--color-text-muted)] pt-0.5">{row.key}</span>
                 {row.value}
               </div>
             ))}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Pencil, Trash2, Search, Pin, PinOff, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
-import { getTransactions, deleteTransaction, getCategories, createRecurringTransaction, deactivateRecurringTransaction } from '@/lib/api'
+import { getTransactions, deleteTransaction, getCategories, createRecurringTransaction, deactivateRecurringTransaction, getMe } from '@/lib/api'
 import type { Transaction, Category } from '@/lib/types'
 import Modal from '@/components/ui/Modal'
 import MultiSelect from '@/components/ui/MultiSelect'
@@ -22,6 +22,7 @@ function hexToLight(hex: string): { bg: string; text: string } {
 
 interface TransactionListProps {
   month: string
+  baseCurrency?: string
 }
 
 interface TableProps {
@@ -32,6 +33,7 @@ interface TableProps {
   loading: boolean
   pinningId: string | null
   deletingId: string | null
+  baseCurrency: string
   onPin: (tx: Transaction) => void
   onUnpin: (tx: Transaction) => void
   onEdit: (tx: Transaction) => void
@@ -48,7 +50,7 @@ function SortIcon({ col, sortKey, dir }: { col: SortKey; sortKey: SortKey | null
 
 function TransactionTable({
   title, type, rows, catMap, loading,
-  pinningId, deletingId, onPin, onUnpin, onEdit, onDelete,
+  pinningId, deletingId, baseCurrency, onPin, onUnpin, onEdit, onDelete,
 }: TableProps) {
   const isIncome = type === 'income'
   const total = rows.reduce((sum, tx) => sum + tx.amount, 0)
@@ -237,11 +239,18 @@ function TransactionTable({
                       {formatDate(tx.date)}
                     </div>
 
-                    <div
-                      className="text-[11px] font-medium text-right"
-                      style={{ color: accentColor }}
-                    >
-                      {isIncome ? '+' : '−'}${formatAmount(tx.amount)}
+                    <div className="text-right">
+                      <div
+                        className="text-[11px] font-medium"
+                        style={{ color: accentColor }}
+                      >
+                        {isIncome ? '+' : '−'}${formatAmount(tx.amount)} {tx.currency !== baseCurrency ? tx.currency : ''}
+                      </div>
+                      {tx.currency !== baseCurrency && tx.exchange_rate !== 1 && (
+                        <div className="text-[9px] text-[var(--color-text-muted)]">
+                          = ${formatAmount(tx.base_amount)} {baseCurrency}
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex items-center justify-center gap-0.5">
@@ -292,8 +301,15 @@ function TransactionTable({
                       </div>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <div className="text-[13px] font-medium" style={{ color: accentColor }}>
-                        {isIncome ? '+' : '−'}${formatAmount(tx.amount)}
+                      <div>
+                        <div className="text-[13px] font-medium" style={{ color: accentColor }}>
+                          {isIncome ? '+' : '−'}${formatAmount(tx.amount)} {tx.currency !== baseCurrency ? tx.currency : ''}
+                        </div>
+                        {tx.currency !== baseCurrency && tx.exchange_rate !== 1 && (
+                          <div className="text-[10px] text-[var(--color-text-muted)]">
+                            = ${formatAmount(tx.base_amount)} {baseCurrency}
+                          </div>
+                        )}
                       </div>
                       {tx.recurring_id ? (
                         <button
@@ -357,7 +373,7 @@ function TransactionTable({
   )
 }
 
-export default function TransactionList({ month }: TransactionListProps) {
+export default function TransactionList({ month, baseCurrency: baseCurrencyProp }: TransactionListProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
@@ -366,6 +382,13 @@ export default function TransactionList({ month }: TransactionListProps) {
   const [editTx, setEditTx] = useState<Transaction | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [pinningId, setPinningId] = useState<string | null>(null)
+  const [baseCurrency, setBaseCurrency] = useState(baseCurrencyProp ?? 'ARS')
+
+  useEffect(() => {
+    if (!baseCurrencyProp) {
+      getMe().then(me => setBaseCurrency(me.base_currency)).catch(() => {})
+    }
+  }, [baseCurrencyProp])
 
   const catMap = Object.fromEntries(categories.map(c => [c.id, c]))
 
@@ -442,7 +465,7 @@ export default function TransactionList({ month }: TransactionListProps) {
   const incomes = filtered.filter(tx => tx.type === 'income')
 
   const tableProps = {
-    catMap, loading, pinningId, deletingId,
+    catMap, loading, pinningId, deletingId, baseCurrency,
     onPin: handlePin,
     onUnpin: handleUnpin,
     onEdit: setEditTx,

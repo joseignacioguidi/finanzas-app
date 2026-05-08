@@ -112,8 +112,8 @@ func (r *transactionRepo) MonthlyStats(ctx context.Context, userID uuid.UUID) ([
 	err := r.db.WithContext(ctx).Raw(`
 		SELECT
 			TO_CHAR(DATE_TRUNC('month', date), 'YYYY-MM') AS month,
-			SUM(CASE WHEN type = 'income'  THEN amount ELSE 0 END) AS income,
-			SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END) AS expense
+			SUM(CASE WHEN type = 'income'  THEN base_amount ELSE 0 END) AS income,
+			SUM(CASE WHEN type = 'expense' THEN base_amount ELSE 0 END) AS expense
 		FROM transactions
 		WHERE user_id = ?
 		  AND status = 'confirmed'
@@ -131,7 +131,7 @@ func (r *transactionRepo) CategoryStats(ctx context.Context, userID uuid.UUID) (
 			t.category_id::text AS category_id,
 			c.name              AS category_name,
 			c.color,
-			SUM(t.amount)       AS total
+			SUM(t.base_amount)  AS total
 		FROM transactions t
 		JOIN categories c ON c.id = t.category_id
 		WHERE t.user_id = ?
