@@ -248,3 +248,34 @@ export interface BudgetInput {
 export interface BudgetUpdateInput {
   amount: number
 }
+
+// ── Savings ───────────────────────────────────────────────────────────────────
+
+export type SavingType = 'cash' | 'bank' | 'virtual_wallet'
+
+export interface SavingResult {
+  id: string
+  name: string
+  type: SavingType
+  amount: number
+  currency: string
+  exchange_rate: number
+  base_amount: number
+  description: string
+  created_at: string
+  updated_at: string
+}
+
+export interface SavingsResponse {
+  savings: SavingResult[]
+  total_base_amount: number
+  base_currency: string
+}
+
+export interface SavingInput {
+  name: string
+  type: SavingType
+  amount: number
+  currency: string
+  description?: string
+}

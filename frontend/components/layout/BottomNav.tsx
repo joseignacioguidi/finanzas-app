@@ -2,12 +2,13 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, ArrowLeftRight, Target, User } from 'lucide-react'
+import { LayoutDashboard, ArrowLeftRight, Target, PiggyBank, User } from 'lucide-react'
 
 const tabs = [
   { href: '/dashboard', label: 'Inicio', icon: LayoutDashboard, segment: 'dashboard' },
   { href: '/transactions', label: 'Movim.', icon: ArrowLeftRight, segment: 'transactions' },
   { href: '/budgets', label: 'Presupuesto', icon: Target, segment: 'budgets' },
+  { href: '/savings', label: 'Ahorros', icon: PiggyBank, segment: 'savings' },
   { href: '/profile', label: 'Perfil', icon: User, segment: 'profile' },
 ]
 

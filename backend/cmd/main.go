@@ -28,6 +28,7 @@ func main() {
 	reportsRepo := repository.NewReportsRepository(database)
 	goalRepo := repository.NewGoalRepository(database)
 	budgetRepo := repository.NewBudgetRepository(database)
+	savingRepo := repository.NewSavingRepository(database)
 
 	// Services
 	exchangeSvc := service.NewExchangeRateService()
@@ -40,6 +41,7 @@ func main() {
 	reportsSvc := service.NewReportsService(reportsRepo)
 	goalsSvc := service.NewGoalsService(goalRepo, reportsRepo)
 	budgetSvc := service.NewBudgetService(budgetRepo, catRepo)
+	savingSvc := service.NewSavingService(savingRepo, userRepo, exchangeSvc)
 
 	// Handlers
 	authH := handler.NewAuthHandler(authSvc)
@@ -51,6 +53,7 @@ func main() {
 	reportsH := handler.NewReportsHandler(reportsSvc)
 	goalsH := handler.NewGoalsHandler(goalsSvc)
 	budgetH := handler.NewBudgetHandler(budgetSvc)
+	savingH := handler.NewSavingHandler(savingSvc)
 	exchangeRateH := handler.NewExchangeRateHandler(exchangeSvc)
 
 	r := gin.Default()
@@ -142,6 +145,14 @@ func main() {
 				budgets.POST("", budgetH.Create)
 				budgets.PUT("/:id", budgetH.Update)
 				budgets.DELETE("/:id", budgetH.Delete)
+			}
+
+			savings := protected.Group("/savings")
+			{
+				savings.GET("", savingH.GetAll)
+				savings.POST("", savingH.Create)
+				savings.PUT("/:id", savingH.Update)
+				savings.DELETE("/:id", savingH.Delete)
 			}
 		}
 	}

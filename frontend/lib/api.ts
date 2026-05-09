@@ -22,6 +22,9 @@ import type {
   BudgetResult,
   BudgetInput,
   BudgetUpdateInput,
+  SavingResult,
+  SavingsResponse,
+  SavingInput,
 } from '@/lib/types'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8080'
@@ -314,4 +317,28 @@ export async function updateBudget(id: string, input: BudgetUpdateInput): Promis
 
 export async function deleteBudget(id: string): Promise<void> {
   return apiFetch<void>(`/api/budgets/${id}`, { method: 'DELETE' })
+}
+
+// ── Savings ───────────────────────────────────────────────────────────────────
+
+export async function getSavings(): Promise<SavingsResponse> {
+  return apiFetch<SavingsResponse>('/api/savings')
+}
+
+export async function createSaving(input: SavingInput): Promise<SavingResult> {
+  return apiFetch<SavingResult>('/api/savings', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  })
+}
+
+export async function updateSaving(id: string, input: SavingInput): Promise<SavingResult> {
+  return apiFetch<SavingResult>(`/api/savings/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(input),
+  })
+}
+
+export async function deleteSaving(id: string): Promise<void> {
+  return apiFetch<void>(`/api/savings/${id}`, { method: 'DELETE' })
 }
